@@ -1,0 +1,2425 @@
+version: "3.8"
+
+services:
+  panel:
+    image: nginx:latest
+      restart: always
+      
+x-commo:
+  # Database configurations
+  database:
+    &db-environment
+    MYSQL_PASSWORD: &db-password "pterodactyl_secure_pass_2024"
+    MYSQL_ROOT_PASSWORD: &db-root-password "root_secure_pass_2024_very_long_and_complex"
+    MYSQL_DATABASE: "pterodactyl_panel_production"
+    MYSQL_USER: "pterodactyl_user"
+    MYSQL_CHARACTER_SET: "utf8mb4"
+    MYSQL_COLLATION: "utf8mb4_unicode_ci"
+    MYSQL_INNODB_BUFFER_POOL_SIZE: "2G"
+    MYSQL_INNODB_LOG_FILE_SIZE: "512M"
+    MYSQL_INNODB_FLUSH_LOG_AT_TRX_COMMIT: "2"
+    MYSQL_INNODB_FLUSH_METHOD: "O_DIRECT"
+    MYSQL_KEY_BUFFER_SIZE: "256M"
+    MYSQL_MAX_ALLOWED_PACKET: "256M"
+    MYSQL_TABLE_OPEN_CACHE: "2000"
+    MYSQL_SORT_BUFFER_SIZE: "4M"
+    MYSQL_READ_BUFFER_SIZE: "2M"
+    MYSQL_READ_RND_BUFFER_SIZE: "8M"
+    MYSQL_MYISAM_SORT_BUFFER_SIZE: "128M"
+    MYSQL_THREAD_CACHE_SIZE: "128"
+    MYSQL_QUERY_CACHE_SIZE: "128M"
+    MYSQL_QUERY_CACHE_LIMIT: "4M"
+    MYSQL_TMP_TABLE_SIZE: "64M"
+    MYSQL_MAX_HEAP_TABLE_SIZE: "64M"
+    MYSQL_WAIT_TIMEOUT: "28800"
+    MYSQL_INTERACTIVE_TIMEOUT: "28800"
+    MYSQL_CONNECT_TIMEOUT: "10"
+    MYSQL_MAX_CONNECTIONS: "500"
+    
+  # Panel environment
+  panel:
+    &panel-environment
+    APP_URL: "https://pterodactyl.yourdomain.com"
+    APP_TIMEZONE: "Asia/Jakarta"
+    APP_SERVICE_AUTHOR: "admin@yourdomain.com"
+    APP_SERVICE_AUTHOR_NAME: "Pterodactyl Admin"
+    APP_SERVICE_AUTHOR_EMAIL: "admin@yourdomain.com"
+    TRUSTED_PROXIES: "192.168.0.0/16,10.0.0.0/8,172.16.0.0/12"
+    APP_DEBUG: "false"
+    APP_ENV: "production"
+    APP_ENVIRONMENT_ONLY: "false"
+    APP_MAINTENANCE_MODE: "false"
+    APP_LOG_LEVEL: "warning"
+    APP_LOG_CHANNEL: "stack"
+    APP_LOG_MAX_FILES: "30"
+    APP_MAINTENANCE_SECRET: "maintenance_secret_key_2024"
+    APP_URL_ALT: "https://pterodactyl.yourdomain.com"
+    APP_SSL_VERIFY: "true"
+    APP_SSL_VERIFY_PEER: "true"
+    APP_SSL_VERIFY_HOST: "true"
+    APP_SSL_CAPATH: "/etc/ssl/certs"
+    APP_SSL_CAFILE: "/etc/ssl/certs/ca-certificates.crt"
+    APP_SSL_LOCAL_CERT: "/etc/letsencrypt/live/yourdomain.com/cert.pem"
+    APP_SSL_LOCAL_PK: "/etc/letsencrypt/live/yourdomain.com/privkey.pem"
+    APP_SSL_LOCAL_CACERT: "/etc/letsencrypt/live/yourdomain.com/chain.pem"
+    APP_SSL_LOCAL_VERIFY: "true"
+    APP_SSL_LOCAL_VERIFY_DEPTH: "10"
+    APP_SSL_LOCAL_ALLOW_SELF_SIGNED: "false"
+    APP_SSL_LOCAL_CERTIFICATE: "/etc/letsencrypt/live/yourdomain.com/fullchain.pem"
+    APP_SESSION_DRIVER: "redis"
+    APP_SESSION_LIFETIME: "120"
+    APP_SESSION_SECURE: "true"
+    APP_SESSION_HTTP_ONLY: "true"
+    APP_SESSION_SAME_SITE: "lax"
+    APP_SESSION_DOMAIN: ".yourdomain.com"
+    APP_SESSION_PATH: "/"
+    APP_COOKIE_SECURE: "true"
+    APP_COOKIE_HTTP_ONLY: "true"
+    APP_COOKIE_SAME_SITE: "lax"
+    APP_COOKIE_DOMAIN: ".yourdomain.com"
+    APP_COOKIE_PATH: "/"
+    APP_COOKIE_PREFIX: "pterodactyl_"
+    APP_CACHE_DRIVER: "redis"
+    APP_CACHE_PREFIX: "pterodactyl_cache"
+    APP_CACHE_TTL: "3600"
+    APP_QUEUE_DRIVER: "redis"
+    APP_QUEUE_CONNECTION: "redis"
+    APP_QUEUE_PREFIX: "pterodactyl_queue"
+    APP_QUEUE_RETRY_AFTER: "90"
+    APP_QUEUE_MAX_ATTEMPTS: "3"
+    APP_QUEUE_BATCH_SIZE: "1000"
+    APP_REDIS_HOST: "cache"
+    APP_REDIS_PORT: "6379"
+    APP_REDIS_PASSWORD: "redis_secure_password_2024"
+    APP_REDIS_DATABASE: "0"
+    APP_REDIS_CACHE_DATABASE: "1"
+    APP_REDIS_SESSION_DATABASE: "2"
+    APP_REDIS_QUEUE_DATABASE: "3"
+    APP_REDIS_PERSISTENT: "true"
+    APP_REDIS_READ_TIMEOUT: "2.5"
+    APP_REDIS_TIMEOUT: "2.5"
+    APP_REDIS_RETRY_INTERVAL: "100"
+    APP_REDIS_CLUSTER: "false"
+    APP_REDIS_PREFIX: "pterodactyl_"
+    APP_DB_HOST: "database"
+    APP_DB_PORT: "3306"
+    APP_DB_DATABASE: "pterodactyl_panel_production"
+    APP_DB_USERNAME: "pterodactyl_user"
+    APP_DB_CHARSET: "utf8mb4"
+    APP_DB_COLLATION: "utf8mb4_unicode_ci"
+    APP_DB_PREFIX: "pterodactyl_"
+    APP_DB_STRICT: "true"
+    APP_DB_ENGINE: "InnoDB"
+    APP_DB_PERSISTENT: "false"
+    APP_DB_SSL_MODE: "preferred"
+    APP_DB_SSL_CA: "/etc/ssl/certs/ca-certificates.crt"
+    APP_DB_SSL_VERIFY: "true"
+    APP_DB_TIMEZONE: "+07:00"
+    APP_DB_RETRY_TIMEOUT: "5"
+    APP_DB_MAX_RETRIES: "3"
+    APP_DB_POOL_SIZE: "100"
+    APP_DB_IDLE_TIMEOUT: "60"
+    APP_DB_MAX_LIFETIME: "60"
+    APP_DB_MIN_IDLE: "10"
+    APP_DB_WAIT_TIMEOUT: "60"
+    APP_DB_CONNECT_TIMEOUT: "10"
+    APP_DB_READ_TIMEOUT: "30"
+    APP_DB_WRITE_TIMEOUT: "30"
+    APP_MAIL_DRIVER: "smtp"
+    APP_MAIL_HOST: "mail"
+    APP_MAIL_PORT: "587"
+    APP_MAIL_USERNAME: "pterodactyl@yourdomain.com"
+    APP_MAIL_PASSWORD: "mail_secure_password_2024"
+    APP_MAIL_ENCRYPTION: "tls"
+    APP_MAIL_FROM_ADDRESS: "noreply@yourdomain.com"
+    APP_MAIL_FROM_NAME: "Pterodactyl Panel"
+    APP_MAIL_REPLY_TO: "support@yourdomain.com"
+    APP_MAIL_REPLY_TO_NAME: "Pterodactyl Support"
+    APP_MAIL_CC: "admin@yourdomain.com"
+    APP_MAIL_BCC: "logs@yourdomain.com"
+    APP_MAIL_SENDMAIL_PATH: "/usr/sbin/sendmail -t -i"
+    APP_MAIL_PRETEND: "false"
+    APP_MAIL_QUEUE: "true"
+    APP_MAIL_RETRY_UNTIL: "5"
+    APP_MAIL_MAX_ATTEMPTS: "3"
+    APP_MAIL_DELAY: "0"
+    APP_MAIL_THROTTLE: "60"
+    APP_MAIL_STREAM: "ssl"
+    APP_MAIL_ALLOW_SELF_SIGNED: "false"
+    APP_MAIL_VERIFY_PEER: "true"
+    APP_MAIL_VERIFY_HOST: "true"
+    APP_MAIL_DEBUG: "false"
+    APP_MAIL_LOG_CHANNEL: "stack"
+    APP_MAIL_LOG_LEVEL: "info"
+    APP_MAIL_MARKDOWN_THEME: "default"
+    APP_MAIL_MARKDOWN_CSS: "/css/mail.css"
+    APP_MAIL_VIEWS: "/resources/views/vendor/mail"
+    APP_MAIL_LAYOUT: "layouts.mail"
+    APP_MAIL_HEADER: "header"
+    APP_MAIL_FOOTER: "footer"
+    APP_MAIL_SUBJECT_PREFIX: "[Pterodactyl] "
+    APP_MAIL_SUBJECT_SUFFIX: " | Pterodactyl Panel"
+    APP_MAIL_SIGNATURE: "Pterodactyl Panel Team"
+    APP_MAIL_SIGNATURE_ENABLED: "true"
+    
+  # Mail configuration
+  mal:
+    &mail-environment
+    MAIL_FROM: "noreply@yourdomain.com"
+    MAIL_FROM_NAME: "Pterodactyl Panel"
+    MAIL_DRIVER: "smtp"
+    MAIL_HOST: "smtp.gmail.com"
+    MAIL_PORT: "587"
+    MAIL_USERNAME: "your-email@gmail.com"
+    MAIL_PASSWORD: "your-app-password-here"
+    MAIL_ENCRYPTION: "tls"
+    MAIL_REPLY_TO: "support@yourdomain.com"
+    MAIL_CC: "admin@yourdomain.com"
+    MAIL_BCC: "logs@yourdomain.com"
+    MAIL_QUEUE: "true"
+    MAIL_THROTTLE: "60"
+    MAIL_RETRY_UNTIL: "5"
+    MAIL_MAX_ATTEMPTS: "3"
+    MAIL_DELAY: "0"
+    MAIL_STREAM: "ssl"
+    MAIL_ALLOW_SELF_SIGNED: "false"
+    MAIL_VERIFY_PEER: "true"
+    MAIL_VERIFY_HOST: "true"
+    MAIL_DEBUG: "false"
+    MAIL_LOG_CHANNEL: "stack"
+    MAIL_LOG_LEVEL: "info"
+    
+  # Wings configuration
+  wings:
+    &wings-environments
+    WINGS_DEBUG: "false"
+    WINGS_LOG_LEVEL: "info"
+    WINGS_LOG_FILE: "/var/log/wings.log"
+    WINGS_LOG_MAX_SIZE: "100M"
+    WINGS_LOG_MAX_BACKUPS: "10"
+    WINGS_LOG_MAX_AGE: "30"
+    WINGS_LOG_COMPRESS: "true"
+    WINGS_DOCKER_HOST: "unix:///var/run/docker.sock"
+    WINGS_DOCKER_NETWORK: "pterodactyl_network"
+    WINGS_DOCKER_MTU: "1500"
+    WINGS_DOCKER_IPV6: "false"
+    WINGS_DOCKER_IPV6_SUBNET: "2001:db8:1::/64"
+    WINGS_DOCKER_IPV6_GATEWAY: "2001:db8:1::1"
+    WINGS_DOCKER_REGISTRY: "https://registry-1.docker.io"
+    WINGS_DOCKER_INSECURE_REGISTRIES: "[]"
+    WINGS_DOCKER_ALLOW_NON_ROOT: "false"
+    WINGS_DOCKER_IMAGE_PULL_TIMEOUT: "300"
+    WINGS_DOCKER_CONTAINER_STOP_TIMEOUT: "30"
+    WINGS_DOCKER_CONTAINER_REMOVE_TIMEOUT: "30"
+    WINGS_DOCKER_CONTAINER_START_TIMEOUT: "30"
+    WINGS_DOCKER_CONTAINER_RESTART_TIMEOUT: "30"
+    WINGS_DOCKER_CONTAINER_ATTACH_TIMEOUT: "30"
+    WINGS_DOCKER_CONTAINER_WAIT_TIMEOUT: "300"
+    WINGS_DOCKER_CONTAINER_LOGS_TIMEOUT: "30"
+    WINGS_DOCKER_CONTAINER_STATS_TIMEOUT: "30"
+    WINGS_DOCKER_CONTAINER_EXEC_TIMEOUT: "30"
+    WINGS_DOCKER_CONTAINER_COPY_TIMEOUT: "300"
+    WINGS_DOCKER_CONTAINER_EXPORT_TIMEOUT: "300"
+    WINGS_DOCKER_CONTAINER_IMPORT_TIMEOUT: "300"
+    WINGS_DOCKER_CONTAINER_COMMIT_TIMEOUT: "300"
+    WINGS_DOCKER_CONTAINER_PAUSE_TIMEOUT: "30"
+    WINGS_DOCKER_CONTAINER_UNPAUSE_TIMEOUT: "30"
+    WINGS_DOCKER_CONTAINER_RENAME_TIMEOUT: "30"
+    WINGS_DOCKER_CONTAINER_UPDATE_TIMEOUT: "30"
+    WINGS_DOCKER_CONTAINER_TOP_TIMEOUT: "30"
+    WINGS_DOCKER_CONTAINER_EVENTS_TIMEOUT: "0"
+    WINGS_DOCKER_CONTAINER_PRUNE_TIMEOUT: "300"
+    WINGS_DOCKER_CONTAINER_PRUNE_FILTERS: '{"label":["maintained_by=pterodactyl"]}'
+    WINGS_DOCKER_NETWORK_NAME: "pterodactyl_network"
+    WINGS_DOCKER_NETWORK_DRIVER: "bridge"
+    WINGS_DOCKER_NETWORK_SUBNET: "172.18.0.0/16"
+    WINGS_DOCKER_NETWORK_GATEWAY: "172.18.0.1"
+    WINGS_DOCKER_VOLUME_DRIVER: "local"
+    WINGS_DOCKER_VOLUME_OPTIONS: '{"type":"none","device":"/srv/pterodactyl/volumes","o":"bind"}'
+    WINGS_DOCKER_VOLUME_SIZE_LIMIT: "0"
+    WINGS_DOCKER_VOLUME_QUOTA: "0"
+    WINGS_DOCKER_VOLUME_GROUP: "pterodactyl"
+    WINGS_DOCKER_VOLUME_MODE: "0755"
+    WINGS_DOCKER_VOLUME_OWNER: "pterodactyl:pterodactyl"
+    WINGS_DOCKER_TMPFS_SIZE: "1024M"
+    WINGS_DOCKER_TMPFS_MODE: "1777"
+    WINGS_DOCKER_DEVICE_CGROUP_RULES: "[]"
+    WINGS_DOCKER_SECURITY_OPT: '["no-new-privileges:true"]'
+    WINGS_DOCKER_SYSCTL: '{"net.core.somaxconn":"1024","net.ipv4.tcp_syncookies":"1"}'
+    WINGS_DOCKER_ULIMITS: '{"nofile":{"Hard":65536,"Soft":65536},"nproc":{"Hard":65536,"Soft":65536}}'
+    WINGS_DOCKER_LOGGING_DRIVER: "json-file"
+    WINGS_DOCKER_LOGGING_OPT: '{"max-size":"100M","max-file":"10","compress":"true"}'
+    WINGS_DOCKER_RUNTIME: "runc"
+    WINGS_DOCKER_CGROUP_PARENT: "/pterodactyl"
+    WINGS_DOCKER_CGROUP_NS: "private"
+    WINGS_DOCKER_PID_NS: "private"
+    WINGS_DOCKER_IPC_NS: "private"
+    WINGS_DOCKER_UTS_NS: "private"
+    WINGS_DOCKER_USER_NS: "host"
+    WINGS_DOCKER_NETWORK_NS: "private"
+    WINGS_DOCKER_PROCESS_NS: "private"
+    WINGS_DOCKER_TIME_NS: "private"
+    WINGS_DOCKER_CGROUP_NS_MODE: "private"
+    WINGS_DOCKER_DEVICE_NS: "private"
+    WINGS_DOCKER_MOUNT_NS: "private"
+    WINGS_DOCKER_LABELS: '{"maintained_by":"pterodactyl","environment":"production"}'
+    WINGS_DOCKER_ANNOTATIONS: '{"maintained_by":"pterodactyl"}'
+    WINGS_DOCKER_HOSTNAME: "pterodactyl-node"
+    WINGS_DOCKER_DOMAINNAME: "yourdomain.com"
+    WINGS_DOCKER_USER: "pterodactyl"
+    WINGS_DOCKER_WORKING_DIR: "/home/container"
+    WINGS_DOCKER_ENTRYPOINT: "[]"
+    WINGS_DOCKER_CMD: "[]"
+    WINGS_DOCKER_ENV: "[]"
+    WINGS_DOCKER_ENV_FILE: "[]"
+    WINGS_DOCKER_ADD_HOSTS: '["host.docker.internal:host-gateway"]'
+    WINGS_DOCKER_EXTRA_HOSTS: '[]'
+    WINGS_DOCKER_DNS: '["8.8.8.8","1.1.1.1"]'
+    WINGS_DOCKER_DNS_SEARCH: '["yourdomain.com"]'
+    WINGS_DOCKER_DNS_OPTIONS: '["ndots:2"]'
+    WINGS_DOCKER_MAC_ADDRESS: ""
+    WINGS_DOCKER_NETWORK_MODE: "bridge"
+    WINGS_DOCKER_IPV4_ADDRESS: ""
+    WINGS_DOCKER_IPV6_ADDRESS: ""
+    WINGS_DOCKER_LINK_LOCAL_IP: ""
+    WINGS_DOCKER_LINK_LOCAL_IPV6: ""
+    WINGS_DOCKER_PUBLISH_ALL_PORTS: "false"
+    WINGS_DOCKER_EXPOSE: "[]"
+    WINGS_DOCKER_PORTS: '[]'
+    WINGS_DOCKER_UDP_PORTS: '[]'
+    WINGS_DOCKER_TCP_PORTS: '[]'
+    WINGS_DOCKER_PORT_BINDINGS: '{}'
+    WINGS_DOCKER_RESTART_POLICY: "unless-stopped"
+    WINGS_DOCKER_RESTART_MAX_RETRIES: "5"
+    WINGS_DOCKER_RESTART_DELAY: "5"
+    WINGS_DOCKER_AUTO_REMOVE: "false"
+    WINGS_DOCKER_PRIVILEGED: "false"
+    WINGS_DOCKER_CAP_ADD: '["NET_ADMIN","NET_RAW","SYS_PTRACE","SYS_CHROOT"]'
+    WINGS_DOCKER_CAP_DROP: '["ALL"]'
+    WINGS_DOCKER_DEVICES: '[]'
+    WINGS_DOCKER_DEVICE_CGROUP_RULES_ENABLED: "false"
+    WINGS_DOCKER_OOM_KILL_DISABLE: "false"
+    WINGS_DOCKER_OOM_SCORE_ADJ: "500"
+    WINGS_DOCKER_PID_LIMIT: "0"
+    WINGS_DOCKER_PIDS_LIMIT: "0"
+    WINGS_DOCKER_CPU_SHARES: "1024"
+    WINGS_DOCKER_CPU_QUOTA: "0"
+    WINGS_DOCKER_CPU_PERIOD: "100000"
+    WINGS_DOCKER_CPU_REALTIME_RUNTIME: "0"
+    WINGS_DOCKER_CPU_REALTIME_PERIOD: "0"
+    WINGS_DOCKER_CPUSET_CPUS: ""
+    WINGS_DOCKER_CPUSET_MEMS: ""
+    WINGS_DOCKER_MEMORY: "0"
+    WINGS_DOCKER_MEMORY_RESERVATION: "0"
+    WINGS_DOCKER_MEMORY_SWAP: "0"
+    WINGS_DOCKER_MEMORY_SWAPPINESS: "-1"
+    WINGS_DOCKER_KERNEL_MEMORY: "0"
+    WINGS_DOCKER_IO_WEIGHT: "0"
+    WINGS_DOCKER_IO_READ_BPS: "0"
+    WINGS_DOCKER_IO_WRITE_BPS: "0"
+    WINGS_DOCKER_IO_READ_IOPS: "0"
+    WINGS_DOCKER_IO_WRITE_IOPS: "0"
+    WINGS_DOCKER_BLKIO_WEIGHT: "0"
+    WINGS_DOCKER_BLKIO_WEIGHT_DEVICE: '[]'
+    WINGS_DOCKER_BLKIO_THROTTLE_READ_BPS: '[]'
+    WINGS_DOCKER_BLKIO_THROTTLE_WRITE_BPS: '[]'
+    WINGS_DOCKER_BLKIO_THROTTLE_READ_IOPS: '[]'
+    WINGS_DOCKER_BLKIO_THROTTLE_WRITE_IOPS: '[]'
+    
+  # Monitoring configuration
+  monitoring:
+    &monitoring-environment
+    PROMETHEUS_RETENTION_TIME: "30d"
+    PROMETHEUS_STORAGE_PATH: "/prometheus"
+    PROMETHEUS_LOG_LEVEL: "info"
+    PROMETHEUS_WEB_LISTEN_ADDRESS: ":9090"
+    PROMETHEUS_WEB_TEMPLATE_PATH: "/usr/share/prometheus/consoles"
+    PROMETHEUS_WEB_STATIC_PATH: "/usr/share/prometheus/console_libraries"
+    PROMETHEUS_WEB_EXTERNAL_URL: "http://prometheus:9090"
+    PROMETHEUS_WEB_ROUTE_PREFIX: "/"
+    PROMETHEUS_WEB_MAX_CONNECTIONS: "512"
+    PROMETHEUS_WEB_READ_TIMEOUT: "30s"
+    PROMETHEUS_WEB_WRITE_TIMEOUT: "30s"
+    PROMETHEUS_WEB_IDLE_TIMEOUT: "60s"
+    PROMETHEUS_WEB_CORS_ALLOW_ORIGIN: ".*"
+    PROMETHEUS_WEB_CORS_ALLOW_METHODS: "GET,POST,PUT,DELETE"
+    PROMETHEUS_WEB_CORS_ALLOW_HEADERS: "X-Requested-With,Content-Type,Authorization"
+    PROMETHEUS_WEB_CORS_EXPOSE_HEADERS: "Content-Length"
+    PROMETHEUS_WEB_CORS_ALLOW_CREDENTIALS: "true"
+    PROMETHEUS_WEB_CORS_MAX_AGE: "86400"
+    PROMETHEUS_QUERY_MAX_SAMPLES: "50000000"
+    PROMETHEUS_QUERY_MAX_CONCURRENCY: "20"
+    PROMETHEUS_QUERY_TIMEOUT: "2m"
+    PROMETHEUS_STORAGE_TSDB_RETENTION_TIME: "30d"
+    PROMETHEUS_STORAGE_TSDB_RETENTION_SIZE: "50GB"
+    PROMETHEUS_STORAGE_TSDB_WAL_SEGMENT_SIZE: "128MB"
+    PROMETHEUS_STORAGE_TSDB_WAL_COMPRESSION: "snappy"
+    PROMETHEUS_STORAGE_TSDB_PREALLOCATE: "true"
+    PROMETHEUS_STORAGE_TSDB_BLOCK_SIZE: "2h"
+    PROMETHEUS_STORAGE_TSDB_BLOCK_RANGES: "2h"
+    PROMETHEUS_STORAGE_TSDB_MIN_BLOCK_DURATION: "2h"
+    PROMETHEUS_STORAGE_TSDB_MAX_BLOCK_DURATION: "24h"
+    PROMETHEUS_STORAGE_TSDB_NO_LOCKFILE: "false"
+    PROMETHEUS_STORAGE_TSDB_ALLOW_OVERLAPPING_BLOCKS: "false"
+    PROMETHEUS_STORAGE_TSDB_HEAD_CHUNKS_WRITE_BUFFER_SIZE: "4MB"
+    PROMETHEUS_STORAGE_TSDB_HEAD_CHUNKS_WRITE_QUEUE_SIZE: "1000"
+    PROMETHEUS_STORAGE_TSDB_HEAD_CHUNKS_WRITE_TIMEOUT: "5s"
+    PROMETHEUS_STORAGE_TSDB_HEAD_SAMPLES_WRITE_BUFFER_SIZE: "1000"
+    PROMETHEUS_STORAGE_TSDB_HEAD_SAMPLES_WRITE_TIMEOUT: "5s"
+    PROMETHEUS_STORAGE_TSDB_HEAD_COMPACTION_INTERVAL: "5m"
+    PROMETHEUS_STORAGE_TSDB_HEAD_COMPACTION_TIMEOUT: "1m"
+    PROMETHEUS_STORAGE_TSDB_HEAD_MIN_CHUNK_SIZE: "1000"
+    PROMETHEUS_STORAGE_TSDB_HEAD_MAX_CHUNK_SIZE: "2000"
+    
+  # Logging configuration
+  logging:
+    &logging-environment
+    LOG_DRIVER: "json-file"
+    LOG_MAX_SIZE: "100m"
+    LOG_MAX_FILE: "10"
+    LOG_COMPRESS: "true"
+    LOG_MAX_AGE: "30d"
+    LOG_TAG: "pterodactyl"
+    LOG_LABELS: "production"
+    LOG_ENV: "production"
+    LOG_SYSLOG_ADDRESS: "udp://localhost:514"
+    LOG_SYSLOG_FACILITY: "local0"
+    LOG_SYSLOG_TAG: "pterodactyl"
+    LOG_SYSLOG_FORMAT: "rfc5424"
+    LOG_GELF_ADDRESS: "udp://localhost:12201"
+    LOG_GELF_COMPRESSION: "gzip"
+    LOG_GELF_COMPRESSION_LEVEL: "6"
+    LOG_FLUENTD_ADDRESS: "localhost:24224"
+    LOG_FLUENTD_BUFFER_LIMIT: "8M"
+    LOG_FLUENTD_RETRY_WAIT: "30"
+    LOG_FLUENTD_MAX_RETRIES: "10"
+    LOG_SPLUNK_TOKEN: "your-splunk-token"
+    LOG_SPLUNK_URL: "https://splunk:8088"
+    LOG_SPLUNK_SOURCE: "pterodactyl"
+    LOG_SPLUNK_SOURCETYPE: "json"
+    LOG_SPLUNK_INDEX: "pterodactyl"
+    LOG_SPLUNK_INSECURE: "false"
+    LOG_SPLUNK_VERIFY: "true"
+    LOG_SPLUNK_CA_FILE: "/etc/ssl/certs/ca-certificates.crt"
+    LOG_SPLUNK_CERT_FILE: "/etc/ssl/certs/client.crt"
+    LOG_SPLUNK_KEY_FILE: "/etc/ssl/private/client.key"
+    LOG_SPLUNK_KEY_PASSWORD: "splunk-key-password"
+    LOG_AWS_ACCESS_KEY_ID: "AKIAXXXXXXXXXXXXXXXX"
+    LOG_AWS_SECRET_ACCESS_KEY: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    LOG_AWS_REGION: "us-east-1"
+    LOG_AWS_GROUP_NAME: "pterodactyl"
+    LOG_AWS_STREAM_NAME: "panel"
+    LOG_AWS_LOGGING_ENABLED: "true"
+    LOG_AWS_LOGGING_TIMEOUT: "5s"
+    LOG_AWS_LOGGING_RETRY: "3"
+    LOG_AWS_LOGGING_BATCH_SIZE: "100"
+    LOG_AWS_LOGGING_BATCH_INTERVAL: "5s"
+    
+  # Security configuration
+  security:
+    &security-environment
+    SECURITY_HEADER_ENABLED: "true"
+    SECURITY_HEADER_FRAME_OPTIONS: "SAMEORIGIN"
+    SECURITY_HEADER_XSS_PROTECTION: "1; mode=block"
+    SECURITY_HEADER_CONTENT_TYPE: "nosniff"
+    SECURITY_HEADER_REFERRER_POLICY: "strict-origin-when-cross-origin"
+    SECURITY_HEADER_HSTS: "max-age=31536000; includeSubDomains; preload"
+    SECURITY_HEADER_CSP: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https:; frame-src 'self'; object-src 'none'"
+    SECURITY_HEADER_CSP_REPORT_ONLY: "false"
+    SECURITY_HEADER_CSP_REPORT_URI: "/csp-report"
+    SECURITY_HEADER_PERMISSIONS_POLICY: "geolocation=(), microphone=(), camera=(), payment=(), usb=(), bluetooth=(), screen-wake-lock=(), xr-spatial-tracking=(), autoplay=()"
+    SECURITY_HEADER_FEATURE_POLICY: "geolocation 'none'; microphone 'none'; camera 'none'; payment 'none'"
+    SECURITY_HEADER_CROSS_ORIGIN_OPENER_POLICY: "same-origin"
+    SECURITY_HEADER_CROSS_ORIGIN_EMBEDDER_POLICY: "require-corp"
+    SECURITY_HEADER_CROSS_ORIGIN_RESOURCE_POLICY: "cross-origin"
+    SECURITY_HEADER_CONTENT_SECURITY_POLICY: "default-src 'self'"
+    SECURITY_HEADER_CONTENT_SECURITY_POLICY_REPORT_ONLY: "false"
+    SECURITY_HEADER_CONTENT_SECURITY_POLICY_REPORT_URI: "/csp-report"
+    SECURITY_HEADER_STRICT_TRANSPORT_SECURITY: "max-age=31536000; includeSubDomains; preload"
+    SECURITY_HEADER_X_FRAME_OPTIONS: "SAMEORIGIN"
+    SECURITY_HEADER_X_XSS_PROTECTION: "1; mode=block"
+    SECURITY_HEADER_X_CONTENT_TYPE_OPTIONS: "nosniff"
+    SECURITY_HEADER_REFERRER_POLICY: "strict-origin-when-cross-origin"
+    SECURITY_HEADER_ORIGIN_AGENT_CLUSTER: "?1"
+    SECURITY_HEADER_X_DNS_PREFETCH_CONTROL: "off"
+    SECURITY_HEADER_X_DOWNLOAD_OPTIONS: "noopen"
+    SECURITY_HEADER_X_PERMITTED_CROSS_DOMAIN_POLICIES: "none"
+    
+  # Backup configuration
+  backup:
+    &backup-environment
+    BACKUP_ENABLED: "true"
+    BACKUP_SCHEDULE: "0 2 * * *"
+    BACKUP_RETENTION_DAYS: "30"
+    BACKUP_COMPRESSION: "gzip"
+    BACKUP_COMPRESSION_LEVEL: "6"
+    BACKUP_ENCRYPTION: "true"
+    BACKUP_ENCRYPTION_PASSWORD: "backup-encryption-password-2024"
+    BACKUP_STORAGE: "local"
+    BACKUP_PATH: "/srv/pterodactyl/backups"
+    BACKUP_BUCKET: "pterodactyl-backups"
+    BACKUP_REGION: "us-east-1"
+    BACKUP_ACCESS_KEY: "AKIAXXXXXXXXXXXXXXXX"
+    BACKUP_SECRET_KEY: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    BACKUP_ENDPOINT: "https://s3.amazonaws.com"
+    BACKUP_SSL_VERIFY: "true"
+    BACKUP_TIMEOUT: "3600"
+    BACKUP_RETRY: "3"
+    BACKUP_RETRY_DELAY: "60"
+    BACKUP_PARALLEL: "4"
+    BACKUP_VERBOSE: "false"
+    BACKUP_DEBUG: "false"
+    BACKUP_DRY_RUN: "false"
+    BACKUP_EXCLUDE: "cache,logs,tmp"
+    BACKUP_INCLUDE: "config,storage,database"
+    BACKUP_PRE_SCRIPT: "/scripts/backup-pre.sh"
+    BACKUP_POST_SCRIPT: "/scripts/backup-post.sh"
+    BACKUP_SUCCESS_SCRIPT: "/scripts/backup-success.sh"
+    BACKUP_FAILURE_SCRIPT: "/scripts/backup-failure.sh"
+    BACKUP_NOTIFICATION_ENABLED: "true"
+    BACKUP_NOTIFICATION_CHANNEL: "email"
+    BACKUP_NOTIFICATION_EMAIL: "admin@yourdomain.com"
+    BACKUP_NOTIFICATION_SLACK_WEBHOOK: "https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX"
+    BACKUP_NOTIFICATION_DISCORD_WEBHOOK: "https://discord.com/api/webhooks/000000000000000000/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    BACKUP_NOTIFICATION_TELEGRAM_BOT_TOKEN: "1234567890:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+    BACKUP_NOTIFICATION_TELEGRAM_CHAT_ID: "-1001234567890"
+    
+  # Performance configuration
+  performance:
+    &performance-environment
+    PERFORMANCE_MAX_CHILDREN: "150"
+    PERFORMANCE_START_SERVERS: "8"
+    PERFORMANCE_MIN_SPARE_SERVERS: "4"
+    PERFORMANCE_MAX_SPARE_SERVERS: "16"
+    PERFORMANCE_MAX_REQUESTS: "10000"
+    PERFORMANCE_MAX_CONNECTIONS: "1000"
+    PERFORMANCE_KEEPALIVE_TIMEOUT: "75"
+    PERFORMANCE_SEND_TIMEOUT: "60"
+    PERFORMANCE_UPLOAD_TIMEOUT: "60"
+    PERFORMANCE_MAX_UPLOAD_SIZE: "100M"
+    PERFORMANCE_MAX_POST_SIZE: "100M"
+    PERFORMANCE_MEMORY_LIMIT: "512M"
+    PERFORMANCE_MAX_EXECUTION_TIME: "300"
+    PERFORMANCE_MAX_INPUT_TIME: "300"
+    PERFORMANCE_MAX_INPUT_VARS: "1000"
+    PERFORMANCE_OPCACHE_ENABLED: "true"
+    PERFORMANCE_OPCACHE_MEMORY_CONSUMPTION: "256"
+    PERFORMANCE_OPCACHE_INTERNED_STRINGS_BUFFER: "16"
+    PERFORMANCE_OPCACHE_MAX_ACCELERATED_FILES: "10000"
+    PERFORMANCE_OPCACHE_REVALIDATE_FREQ: "2"
+    PERFORMANCE_OPCACHE_FAST_SHUTDOWN: "true"
+    PERFORMANCE_OPCACHE_ENABLE_FILE_OVERRIDE: "true"
+    PERFORMANCE_OPCACHE_MAX_WASTED_PERCENTAGE: "5"
+    PERFORMANCE_OPCACHE_USE_CWD: "true"
+    PERFORMANCE_OPCACHE_VALIDATE_TIMESTAMPS: "true"
+    PERFORMANCE_OPCACHE_BLACKLIST_FILENAME: "/etc/php/opcache-blacklist.txt"
+    PERFORMANCE_OPCACHE_MAX_FILE_SIZE: "0"
+    PERFORMANCE_OPCACHE_CONSISTENCY_CHECKS: "0"
+    PERFORMANCE_OPCACHE_FORCE_RESTART_TIMEOUT: "180"
+    PERFORMANCE_OPCACHE_ERROR_LOG: "/var/log/php/opcache.log"
+    PERFORMANCE_OPCACHE_LOG_VERBOSITY_LEVEL: "1"
+    PERFORMANCE_OPCACHE_PREFERRED_MEMORY_MODEL: ""
+    PERFORMANCE_OPCACHE_PROTECT_MEMORY: "0"
+    PERFORMANCE_OPCACHE_RECORD_WARNINGS: "0"
+    PERFORMANCE_OPCACHE_SAVE_COMMENTS: "1"
+    PERFORMANCE_OPCACHE_STRIP_COMMENTS: "0"
+    PERFORMANCE_OPCACHE_TRACE_FILE: "/var/log/php/opcache.trace"
+    PERFORMANCE_OPCACHE_TRACE_LEVEL: "0"
+    PERFORMANCE_OPCACHE_TRACE_TYPES: "0"
+    
+  # Network configuration
+  network:
+    &network-environment
+    NETWORK_SUBNET: "172.20.0.0/16"
+    NETWORK_GATEWAY: "172.20.0.1"
+    NETWORK_IP_RANGE: "172.20.0.0/24"
+    NETWORK_AUX_ADDRESSES: '{"host1":"172.20.0.10","host2":"172.20.0.11"}'
+    NETWORK_DRIVER: "bridge"
+    NETWORK_DRIVER_OPTS: '{"com.docker.network.bridge.name":"pterodactyl0","com.docker.network.bridge.enable_ip_masquerade":"true","com.docker.network.bridge.enable_icc":"true","com.docker.network.bridge.host_binding_ipv4":"0.0.0.0"}'
+    NETWORK_LABELS: '{"maintained_by":"pterodactyl","environment":"production"}'
+    NETWORK_ATTACHABLE: "true"
+    NETWORK_INTERNAL: "false"
+    NETWORK_IPAM_DRIVER: "default"
+    NETWORK_IPAM_CONFIG: '{"Subnet":"172.20.0.0/16","Gateway":"172.20.0.1","IPRange":"172.20.0.0/24"}'
+    NETWORK_IPAM_OPTIONS: '{}'
+    NETWORK_ENABLE_IPV6: "true"
+    NETWORK_IPV6_SUBNET: "2001:db8:1::/64"
+    NETWORK_IPV6_GATEWAY: "2001:db8:1::1"
+    NETWORK_IPV6_IP_RANGE: "2001:db8:1::/80"
+    NETWORK_IPV6_AUX_ADDRESSES: '{"host1":"2001:db8:1::10","host2":"2001:db8:1::11"}'
+    NETWORK_LABELS: '{"maintained_by":"pterodactyl"}'
+    NETWORK_SCOPE: "local"
+    NETWORK_INGRESS: "false"
+    
+  # Service configuration
+  service:
+    &service-environment
+    SERVICE_RESTART: "always"
+    SERVICE_RESTART_RETRIES: "5"
+    SERVICE_RESTART_DELAY: "5s"
+    SERVICE_RESTART_MAX_DELAY: "30s"
+    SERVICE_RESTART_WINDOW: "60s"
+    SERVICE_RESTART_BACKOFF: "exponential"
+    SERVICE_RESTART_BACKOFF_RATE: "2"
+    SERVICE_RESTART_BACKOFF_MAX: "30s"
+    SERVICE_DEPENDENCIES: "database,cache"
+    SERVICE_DEPENDENCIES_CONDITION: "service_healthy"
+    SERVICE_DEPENDENCIES_RESTART: "true"
+    SERVICE_DEPENDENCIES_TIMEOUT: "120s"
+    SERVICE_DEPENDENCIES_ORDER: "start-first"
+    SERVICE_STOP_GRACE_PERIOD: "60s"
+    SERVICE_STOP_SIGNAL: "SIGTERM"
+    SERVICE_STOP_TIMEOUT: "30s"
+    SERVICE_STOP_WAIT: "10s"
+    SERVICE_KILL_SIGNAL: "SIGKILL"
+    SERVICE_KILL_TIMEOUT: "5s"
+    SERVICE_START_PERIOD: "30s"
+    SERVICE_START_TIMEOUT: "60s"
+    SERVICE_HEALTHCHECK: "true"
+    SERVICE_HEALTHCHECK_INTERVAL: "30s"
+    SERVICE_HEALTHCHECK_TIMEOUT: "10s"
+    SERVICE_HEALTHCHECK_RETRIES: "3"
+    SERVICE_HEALTHCHECK_START_PERIOD: "60s"
+    SERVICE_HEALTHCHECK_DISABLE: "false"
+    SERVICE_HEALTHCHECK_TEST: "curl -f http://localhost/health || exit 1"
+    SERVICE_SCALE: "1"
+    SERVICE_SCALE_MIN: "1"
+    SERVICE_SCALE_MAX: "10"
+    SERVICE_SCALE_STEP: "1"
+    SERVICE_SCALE_ADJUST: "auto"
+    SERVICE_SCALE_THRESHOLD: "80%"
+    SERVICE_SCALE_COOLDOWN: "60s"
+    SERVICE_SCALE_STABILIZATION: "30s"
+    SERVICE_SCALE_POLICY: "cpu"
+    SERVICE_SCALE_METRICS: "cpu,memory,connections"
+    
+  # DNS configuration
+  dns:
+    &dns-environment
+    DNS_SERVERS: '["8.8.8.8","1.1.1.1","9.9.9.9"]'
+    DNS_SEARCH_DOMAINS: '["yourdomain.com","internal.yourdomain.com"]'
+    DNS_OPTIONS: '["ndots:2","timeout:3","attempts:2"]'
+    DNS_NAMESERVERS: '["8.8.8.8","1.1.1.1"]'
+    DNS_DOMAIN: "yourdomain.com"
+    DNS_HOSTS: '{"host1":"192.168.1.100","host2":"192.168.1.101"}'
+    DNS_RESOLV_CONF: "/etc/resolv.conf"
+    DNS_ETC_HOSTS: "/etc/hosts"
+    DNS_CACHE_ENABLED: "true"
+    DNS_CACHE_SIZE: "1000"
+    DNS_CACHE_TTL: "300"
+    DNS_CACHE_NEGATIVE_TTL: "60"
+    DNS_RELOAD_INTERVAL: "60"
+    DNS_DEBUG: "false"
+    
+# =============================================================================
+# SERVICES
+# =============================================================================
+services:
+  # ===== DATABASE SERVICES =====
+  database:
+    image: mariadb:10.11
+    container_name: pterodactyl-database
+    restart: always
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --innodb-buffer-pool-size=2G
+      --innodb-log-file-size=512M
+      --innodb-flush-log-at-trx-commit=2
+      --innodb-flush-method=O_DIRECT
+      --key-buffer-size=256M
+      --max-allowed-packet=256M
+      --table-open-cache=2000
+      --sort-buffer-size=4M
+      --read-buffer-size=2M
+      --read-rnd-buffer-size=8M
+      --myisam-sort-buffer-size=128M
+      --thread-cache-size=128
+      --query-cache-size=128M
+      --query-cache-limit=4M
+      --tmp-table-size=64M
+      --max-heap-table-size=64M
+      --wait-timeout=28800
+      --interactive-timeout=28800
+      --connect-timeout=10
+      --max-connections=500
+      --log-bin=/var/log/mysql/mysql-bin
+      --binlog-format=MIXED
+      --expire-logs-days=7
+      --max-binlog-size=100M
+      --log-error=/var/log/mysql/error.log
+      --slow-query-log=1
+      --slow-query-log-file=/var/log/mysql/slow.log
+      --long-query-time=2
+      --log-queries-not-using-indexes=1
+      --log-slow-admin-statements=1
+      --log-slow-slave-statements=1
+      --log-warnings=2
+      --general-log=0
+      --general-log-file=/var/log/mysql/general.log
+      --innodb-status-file=1
+      --innodb-status-file-limit=100M
+      --performance-schema=1
+      --performance-schema-consumer-events-statements-current=1
+      --performance-schema-consumer-events-waits-current=1
+      --performance-schema-consumer-events-stages-current=1
+      --performance-schema-consumer-global-instrumentation=1
+      --performance-schema-consumer-thread-instrumentation=1
+      --performance-schema-consumer-statements-digest=1
+      --performance-schema-account-size=1000
+      --performance-schema-host-size=500
+      --performance-schema-user-size=500
+      --performance-schema-max-sql-text-length=1024
+      --performance-schema-max-stack-depth=32
+    volumes:
+      - "/srv/pterodactyl/database:/var/lib/mysql"
+      - "/srv/pterodactyl/database/config:/etc/mysql/conf.d"
+      - "/srv/pterodactyl/database/backup:/backup"
+      - "/srv/pterodactyl/database/logs:/var/log/mysql"
+    environment:
+      <<: *db-environment
+    ports:
+      - "3306:3306"
+    networks:
+      - pterodactyl_network
+      - monitoring_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 4096M
+        reservations:
+          cpus: '1.0'
+          memory: 1024M
+    logging:
+      <<: *logging-environment
+      
+  # ===== CACHE SERVICES =====
+  cache:
+    image: redis:7.2-alpine
+    container_name: pterodactyl-cache
+    restart: always
+    command: >
+      redis-server
+      --appendonly yes
+      --appendfsync everysec
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+      --maxmemory 1024mb
+      --maxmemory-policy allkeys-lru
+      --maxmemory-samples 5
+      --lru-cache 1000000
+      --hash-max-ziplist-entries 512
+      --hash-max-ziplist-value 64
+      --list-max-ziplist-size -2
+      --list-compress-depth 0
+      --set-max-intset-entries 512
+      --zset-max-ziplist-entries 128
+      --zset-max-ziplist-value 64
+      --hll-sparse-max-bytes 3000
+      --activerehashing yes
+      --client-output-buffer-limit normal 0 0 0
+      --client-output-buffer-limit replica 256mb 64mb 60
+      --client-output-buffer-limit pubsub 32mb 8mb 60
+      --hz 10
+      --dynamic-hz yes
+      --aof-rewrite-incremental-fsync yes
+      --rdb-save-incremental-fsync yes
+      --lazyfree-lazy-eviction no
+      --lazyfree-lazy-expire no
+      --lazyfree-lazy-server-del no
+      --replica-lazy-flush no
+      --lazyfree-lazy-user-del no
+      --lazyfree-lazy-user-flush no
+      --io-threads 4
+      --io-threads-do-reads yes
+      --aof-use-rdb-preamble yes
+      --rdbchecksum yes
+      --dbfilename dump.rdb
+      --dir /data
+      --requirepass redis_secure_password_2024
+      --masterauth redis_secure_password_2024
+      --protected-mode yes
+      --bind 0.0.0.0
+      --port 6379
+      --tcp-backlog 511
+      --timeout 0
+      --tcp-keepalive 300
+      --daemonize no
+      --pidfile /var/run/redis_6379.pid
+      --loglevel notice
+      --logfile /var/log/redis/redis.log
+      --syslog-enabled yes
+      --syslog-ident redis
+      --syslog-facility local0
+      --databases 16
+      --stop-writes-on-bgsave-error yes
+      --rdbcompression yes
+      --rdb-del-sync-files no
+      --repl-diskless-sync yes
+      --repl-diskless-sync-delay 5
+      --repl-diskless-load disabled
+      --repl-disable-tcp-nodelay no
+      --repl-backlog-size 64mb
+      --repl-backlog-ttl 3600
+      --repl-ping-replica-period 10
+      --repl-timeout 60
+      --repl-min-replicas-to-write 0
+      --repl-min-replicas-max-lag 10
+      --replica-serve-stale-data yes
+      --replica-read-only yes
+      --replica-ignore-disk-write-errors no
+      --replica-priority 100
+      --replica-announce-ip ""
+      --replica-announce-port 0
+      --cluster-enabled no
+      --cluster-config-file nodes-6379.conf
+      --cluster-node-timeout 15000
+      --cluster-port 16379
+      --cluster-announce-ip ""
+      --cluster-announce-port 0
+      --cluster-announce-bus-port 0
+      --cluster-allow-reads-when-down no
+      --cluster-require-full-coverage yes
+      --cluster-migration-barrier 1
+      --cluster-replica-validity-factor 10
+      --cluster-replica-no-failover no
+      --cluster-preferred-endpoint-type ip
+      --latency-monitor-threshold 0
+      --slowlog-log-slower-than 10000
+      --slowlog-max-len 128
+      --notify-keyspace-events ""
+      --hash-max-ziplist-entries 512
+      --hash-max-ziplist-value 64
+      --list-max-ziplist-size -2
+      --list-compress-depth 0
+      --set-max-intset-entries 512
+      --zset-max-ziplist-entries 128
+      --zset-max-ziplist-value 64
+      --hll-sparse-max-bytes 3000
+      --stream-node-max-bytes 4096
+      --stream-node-max-entries 100
+      --activedefrag yes
+      --active-defrag-ignore-bytes 100mb
+      --active-defrag-threshold-lower 10
+      --active-defrag-threshold-upper 100
+      --active-defrag-cycle-min 5
+      --active-defrag-cycle-max 75
+      --active-defrag-max-scan-fields 1000
+      --auto-aof-rewrite-percentage 100
+      --auto-aof-rewrite-min-size 64mb
+      --aof-rewrite-incremental-fsync yes
+      --rdb-save-incremental-fsync yes
+      --aof-load-truncated yes
+      --aof-timestamp-enabled no
+      --tracking-table-max-keys 1000000
+      --enable-protected-configs no
+      --enable-debug-command no
+      --enable-module-command no
+      --enable-scripting yes
+      --enable-lfu yes
+      --acl-pubsub-default allchannels
+    volumes:
+      - "/srv/pterodactyl/redis:/data"
+      - "/srv/pterodactyl/redis/conf:/usr/local/etc/redis"
+      - "/srv/pterodactyl/redis/logs:/var/log/redis"
+    environment:
+      - REDIS_PASSWORD=redis_secure_password_2024
+    ports:
+      - "6379:6379"
+    networks:
+      - pterodactyl_network
+      - monitoring_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      <<: *logging-environment
+      
+  # ===== PANEL SERVICES =====
+  panel:
+    image: ghcr.io/pterodactyl/panel:latest
+    container_name: pterodactyl-panel
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      database:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+    volumes:
+      - "/srv/pterodactyl/var/:/app/var/"
+      - "/srv/pterodactyl/nginx/:/etc/nginx/http.d/"
+      - "/srv/pterodactyl/certs/:/etc/letsencrypt/"
+      - "/srv/pterodactyl/logs/:/app/storage/logs"
+      - "/srv/pterodactyl/public/:/app/public"
+      - "/srv/pterodactyl/resources/:/app/resources"
+      - "/srv/pterodactyl/config/:/app/config"
+      - "/srv/pterodactyl/scripts/:/app/scripts"
+      - "/srv/pterodactyl/backups/:/app/backups"
+      - "/srv/pterodactyl/tmp/:/app/tmp"
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+    environment:
+      <<: [*panel-environment, *mail-environment, *security-environment, *performance-environment, *backup-environment]
+      DB_PASSWORD: *db-password
+      APP_ENV: "production"
+      APP_ENVIRONMENT_ONLY: "false"
+      APP_DEBUG: "false"
+      CACHE_DRIVER: "redis"
+      SESSION_DRIVER: "redis"
+      QUEUE_DRIVER: "redis"
+      REDIS_HOST: "cache"
+      REDIS_PORT: "6379"
+      REDIS_PASSWORD: "redis_secure_password_2024"
+      REDIS_DATABASE: "0"
+      REDIS_CACHE_DATABASE: "1"
+      REDIS_SESSION_DATABASE: "2"
+      REDIS_QUEUE_DATABASE: "3"
+      DB_HOST: "database"
+      DB_PORT: "3306"
+      DB_DATABASE: "pterodactyl_panel_production"
+      DB_USERNAME: "pterodactyl_user"
+      DB_PASSWORD: *db-password
+      DB_CHARSET: "utf8mb4"
+      DB_COLLATION: "utf8mb4_unicode_ci"
+      DB_PREFIX: "pterodactyl_"
+      DB_STRICT: "true"
+      DB_ENGINE: "InnoDB"
+      DB_PERSISTENT: "false"
+      DB_SSL_MODE: "preferred"
+      DB_SSL_CA: "/etc/ssl/certs/ca-certificates.crt"
+      DB_SSL_VERIFY: "true"
+      DB_TIMEZONE: "+07:00"
+      DB_RETRY_TIMEOUT: "5"
+      DB_MAX_RETRIES: "3"
+      DB_POOL_SIZE: "100"
+      DB_IDLE_TIMEOUT: "60"
+      DB_MAX_LIFETIME: "60"
+      DB_MIN_IDLE: "10"
+      DB_WAIT_TIMEOUT: "60"
+      DB_CONNECT_TIMEOUT: "10"
+      DB_READ_TIMEOUT: "30"
+      DB_WRITE_TIMEOUT: "30"
+      APP_MAIL_DRIVER: "smtp"
+      APP_MAIL_HOST: "smtp.gmail.com"
+      APP_MAIL_PORT: "587"
+      APP_MAIL_USERNAME: "your-email@gmail.com"
+      APP_MAIL_PASSWORD: "your-app-password-here"
+      APP_MAIL_ENCRYPTION: "tls"
+      APP_MAIL_FROM_ADDRESS: "noreply@yourdomain.com"
+      APP_MAIL_FROM_NAME: "Pterodactyl Panel"
+      APP_MAIL_REPLY_TO: "support@yourdomain.com"
+      APP_MAIL_CC: "admin@yourdomain.com"
+      APP_MAIL_BCC: "logs@yourdomain.com"
+      APP_MAIL_QUEUE: "true"
+      APP_MAIL_THROTTLE: "60"
+      APP_MAIL_RETRY_UNTIL: "5"
+      APP_MAIL_MAX_ATTEMPTS: "3"
+      APP_MAIL_DELAY: "0"
+      APP_MAIL_STREAM: "ssl"
+      APP_MAIL_ALLOW_SELF_SIGNED: "false"
+      APP_MAIL_VERIFY_PEER: "true"
+      APP_MAIL_VERIFY_HOST: "true"
+      APP_MAIL_DEBUG: "false"
+      APP_MAIL_LOG_CHANNEL: "stack"
+      APP_MAIL_LOG_LEVEL: "info"
+      BACKUP_ENABLED: "true"
+      BACKUP_SCHEDULE: "0 2 * * *"
+      BACKUP_RETENTION_DAYS: "30"
+      BACKUP_COMPRESSION: "gzip"
+      BACKUP_COMPRESSION_LEVEL: "6"
+      BACKUP_ENCRYPTION: "true"
+      BACKUP_ENCRYPTION_PASSWORD: "backup-encryption-password-2024"
+      BACKUP_STORAGE: "local"
+      BACKUP_PATH: "/srv/pterodactyl/backups"
+      BACKUP_VERBOSE: "false"
+      BACKUP_DEBUG: "false"
+      BACKUP_DRY_RUN: "false"
+      BACKUP_EXCLUDE: "cache,logs,tmp"
+      BACKUP_INCLUDE: "config,storage,database"
+    networks:
+      - pterodactyl_network
+      - monitoring_network
+      - logging_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      <<: *logging-environment
+      
+  # ===== WINGS SERVICES =====
+  wings:
+    image: ghcr.io/pterodactyl/wings:latest
+    container_name: pterodactyl-wings
+    restart: always
+    privileged: true
+    depends_on:
+      - panel
+      - database
+      - cache
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/srv/pterodactyl/wings:/etc/pterodactyl"
+      - "/srv/pterodactyl/volumes:/var/lib/pterodactyl/volumes"
+      - "/srv/pterodactyl/archive:/var/lib/pterodactyl/archive"
+      - "/srv/pterodactyl/backups:/var/lib/pterodactyl/backups"
+      - "/srv/pterodactyl/logs:/var/log/pterodactyl"
+      - "/srv/pterodactyl/certs:/etc/ssl/certs"
+      - "/srv/pterodactyl/scripts:/scripts"
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+    environment:
+      <<: [*wings-environment]
+      WINGS_PANEL_HOST: "panel"
+      WINGS_PANEL_PORT: "80"
+      WINGS_PANEL_SSL: "false"
+      WINGS_PANEL_KEY: "your-wings-api-key-here"
+      WINGS_DATA_DIR: "/var/lib/pterodactyl"
+      WINGS_ARCHIVE_DIR: "/var/lib/pterodactyl/archive"
+      WINGS_BACKUP_DIR: "/var/lib/pterodactyl/backups"
+      WINGS_LOG_DIR: "/var/log/pterodactyl"
+      WINGS_CERT_DIR: "/etc/ssl/certs"
+      WINGS_DOCKER_IMAGE: "ghcr.io/pterodactyl/panel:latest"
+      WINGS_DOCKER_NETWORK: "pterodactyl_network"
+      WINGS_DOCKER_NETWORK_DRIVER: "bridge"
+      WINGS_DOCKER_NETWORK_SUBNET: "172.18.0.0/16"
+      WINGS_DOCKER_NETWORK_GATEWAY: "172.18.0.1"
+      WINGS_DOCKER_NETWORK_IP_RANGE: "172.18.0.0/24"
+      WINGS_DOCKER_NETWORK_IPV6_SUBNET: "2001:db8:2::/64"
+      WINGS_DOCKER_NETWORK_IPV6_GATEWAY: "2001:db8:2::1"
+      WINGS_DOCKER_NETWORK_IPV6_IP_RANGE: "2001:db8:2::/80"
+      WINGS_DOCKER_NETWORK_LABELS: '{"maintained_by":"pterodactyl","environment":"production"}'
+      WINGS_DOCKER_NETWORK_ATTACHABLE: "true"
+      WINGS_DOCKER_NETWORK_INTERNAL: "false"
+      WINGS_DOCKER_NETWORK_SCOPE: "local"
+      WINGS_DOCKER_MTU: "1500"
+      WINGS_DOCKER_IPV6: "true"
+      WINGS_DOCKER_REGISTRY: "https://registry-1.docker.io"
+      WINGS_DOCKER_INSECURE_REGISTRIES: "[]"
+      WINGS_DOCKER_ALLOW_NON_ROOT: "false"
+      WINGS_DOCKER_IMAGE_PULL_TIMEOUT: "300"
+      WINGS_DOCKER_CONTAINER_STOP_TIMEOUT: "30"
+      WINGS_DOCKER_CONTAINER_REMOVE_TIMEOUT: "30"
+      WINGS_DOCKER_CONTAINER_START_TIMEOUT: "30"
+      WINGS_DOCKER_CONTAINER_RESTART_TIMEOUT: "30"
+      WINGS_DOCKER_CONTAINER_ATTACH_TIMEOUT: "30"
+      WINGS_DOCKER_CONTAINER_WAIT_TIMEOUT: "300"
+      WINGS_DOCKER_CONTAINER_LOGS_TIMEOUT: "30"
+      WINGS_DOCKER_CONTAINER_STATS_TIMEOUT: "30"
+      WINGS_DOCKER_CONTAINER_EXEC_TIMEOUT: "30"
+      WINGS_DOCKER_CONTAINER_COPY_TIMEOUT: "300"
+      WINGS_DOCKER_CONTAINER_EXPORT_TIMEOUT: "300"
+      WINGS_DOCKER_CONTAINER_IMPORT_TIMEOUT: "300"
+      WINGS_DOCKER_CONTAINER_COMMIT_TIMEOUT: "300"
+      WINGS_DOCKER_CONTAINER_PAUSE_TIMEOUT: "30"
+      WINGS_DOCKER_CONTAINER_UNPAUSE_TIMEOUT: "30"
+      WINGS_DOCKER_CONTAINER_RENAME_TIMEOUT: "30"
+      WINGS_DOCKER_CONTAINER_UPDATE_TIMEOUT: "30"
+      WINGS_DOCKER_CONTAINER_TOP_TIMEOUT: "30"
+      WINGS_DOCKER_CONTAINER_EVENTS_TIMEOUT: "0"
+      WINGS_DOCKER_CONTAINER_PRUNE_TIMEOUT: "300"
+      WINGS_DOCKER_CONTAINER_PRUNE_FILTERS: '{"label":["maintained_by=pterodactyl"]}'
+      WINGS_DOCKER_VOLUME_DRIVER: "local"
+      WINGS_DOCKER_VOLUME_OPTIONS: '{"type":"none","device":"/var/lib/pterodactyl/volumes","o":"bind"}'
+      WINGS_DOCKER_VOLUME_SIZE_LIMIT: "0"
+      WINGS_DOCKER_VOLUME_QUOTA: "0"
+      WINGS_DOCKER_VOLUME_GROUP: "pterodactyl"
+      WINGS_DOCKER_VOLUME_MODE: "0755"
+      WINGS_DOCKER_VOLUME_OWNER: "pterodactyl:pterodactyl"
+      WINGS_DOCKER_TMPFS_SIZE: "1024M"
+      WINGS_DOCKER_TMPFS_MODE: "1777"
+      WINGS_DOCKER_DEVICE_CGROUP_RULES: "[]"
+      WINGS_DOCKER_SECURITY_OPT: '["no-new-privileges:true"]'
+      WINGS_DOCKER_SYSCTL: '{"net.core.somaxconn":"1024","net.ipv4.tcp_syncookies":"1"}'
+      WINGS_DOCKER_ULIMITS: '{"nofile":{"Hard":65536,"Soft":65536},"nproc":{"Hard":65536,"Soft":65536}}'
+      WINGS_DOCKER_LOGGING_DRIVER: "json-file"
+      WINGS_DOCKER_LOGGING_OPT: '{"max-size":"100M","max-file":"10","compress":"true"}'
+      WINGS_DOCKER_RUNTIME: "runc"
+      WINGS_DOCKER_CGROUP_PARENT: "/pterodactyl"
+      WINGS_DOCKER_LABELS: '{"maintained_by":"pterodactyl","environment":"production"}'
+      WINGS_DOCKER_ANNOTATIONS: '{"maintained_by":"pterodactyl"}'
+      WINGS_DOCKER_HOSTNAME: "pterodactyl-node"
+      WINGS_DOCKER_DOMAINNAME: "yourdomain.com"
+      WINGS_DOCKER_USER: "pterodactyl"
+      WINGS_DOCKER_WORKING_DIR: "/home/container"
+      WINGS_DOCKER_ENTRYPOINT: "[]"
+      WINGS_DOCKER_CMD: "[]"
+      WINGS_DOCKER_ENV: "[]"
+      WINGS_DOCKER_ENV_FILE: "[]"
+      WINGS_DOCKER_ADD_HOSTS: '["host.docker.internal:host-gateway"]'
+      WINGS_DOCKER_EXTRA_HOSTS: '[]'
+      WINGS_DOCKER_DNS: '["8.8.8.8","1.1.1.1","9.9.9.9"]'
+      WINGS_DOCKER_DNS_SEARCH: '["yourdomain.com","internal.yourdomain.com"]'
+      WINGS_DOCKER_DNS_OPTIONS: '["ndots:2","timeout:3","attempts:2"]'
+      WINGS_DOCKER_RESTART_POLICY: "unless-stopped"
+      WINGS_DOCKER_RESTART_MAX_RETRIES: "5"
+      WINGS_DOCKER_RESTART_DELAY: "5"
+      WINGS_DOCKER_AUTO_REMOVE: "false"
+      WINGS_DOCKER_PRIVILEGED: "true"
+      WINGS_DOCKER_CAP_ADD: '["NET_ADMIN","NET_RAW","SYS_PTRACE","SYS_CHROOT","SYS_ADMIN","MKNOD","SETFCAP"]'
+      WINGS_DOCKER_CAP_DROP: '["ALL"]'
+      WINGS_DOCKER_DEVICES: '[]'
+      WINGS_DOCKER_DEVICE_CGROUP_RULES_ENABLED: "false"
+      WINGS_DOCKER_OOM_KILL_DISABLE: "false"
+      WINGS_DOCKER_OOM_SCORE_ADJ: "500"
+      WINGS_DOCKER_PID_LIMIT: "0"
+      WINGS_DOCKER_PIDS_LIMIT: "0"
+      WINGS_DOCKER_CPU_SHARES: "1024"
+      WINGS_DOCKER_CPU_QUOTA: "0"
+      WINGS_DOCKER_CPU_PERIOD: "100000"
+      WINGS_DOCKER_CPU_REALTIME_RUNTIME: "0"
+      WINGS_DOCKER_CPU_REALTIME_PERIOD: "0"
+      WINGS_DOCKER_CPUSET_CPUS: ""
+      WINGS_DOCKER_CPUSET_MEMS: ""
+      WINGS_DOCKER_MEMORY: "0"
+      WINGS_DOCKER_MEMORY_RESERVATION: "0"
+      WINGS_DOCKER_MEMORY_SWAP: "0"
+      WINGS_DOCKER_MEMORY_SWAPPINESS: "-1"
+      WINGS_DOCKER_KERNEL_MEMORY: "0"
+      WINGS_DOCKER_IO_WEIGHT: "0"
+      WINGS_DOCKER_IO_READ_BPS: "0"
+      WINGS_DOCKER_IO_WRITE_BPS: "0"
+      WINGS_DOCKER_IO_READ_IOPS: "0"
+      WINGS_DOCKER_IO_WRITE_IOPS: "0"
+      WINGS_DOCKER_BLKIO_WEIGHT: "0"
+      WINGS_DOCKER_BLKIO_WEIGHT_DEVICE: '[]'
+      WINGS_DOCKER_BLKIO_THROTTLE_READ_BPS: '[]'
+      WINGS_DOCKER_BLKIO_THROTTLE_WRITE_BPS: '[]'
+      WINGS_DOCKER_BLKIO_THROTTLE_READ_IOPS: '[]'
+      WINGS_DOCKER_BLKIO_THROTTLE_WRITE_IOPS: '[]'
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    networks:
+      - pterodactyl_network
+      - monitoring_network
+      - logging_network
+    healthcheck:
+      test: ["CMD", "wings", "health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 4096M
+        reservations:
+          cpus: '1.0'
+          memory: 1024M
+    logging:
+      <<: *logging-environment
+      
+  # ===== MONITORING SERVICES =====
+  prometheus:
+    image: prom/prometheus:v2.48.1
+    container_name: prometheus
+    restart: always
+    volumes:
+      - "/srv/pterodactyl/monitoring/prometheus:/etc/prometheus"
+      - "/srv/pterodactyl/monitoring/prometheus/data:/prometheus"
+      - "/srv/pterodactyl/monitoring/prometheus/rules:/etc/prometheus/rules"
+      - "/srv/pterodactyl/monitoring/prometheus/alerts:/etc/prometheus/alerts"
+      - "/srv/pterodactyl/monitoring/prometheus/conf:/etc/prometheus/conf"
+    environment:
+      <<: [*monitoring-environment]
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring_network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      <<: *logging-environment
+      
+  grafana:
+    image: grafana/grafana:10.3.3
+    container_name: grafana
+    restart: always
+    volumes:
+      - "/srv/pterodactyl/monitoring/grafana:/var/lib/grafana"
+      - "/srv/pterodactyl/monitoring/grafana/dashboards:/etc/grafana/dashboards"
+      - "/srv/pterodactyl/monitoring/grafana/datasources:/etc/grafana/datasources"
+      - "/srv/pterodactyl/monitoring/grafana/plugins:/var/lib/grafana/plugins"
+      - "/srv/pterodactyl/monitoring/grafana/provisioning:/etc/grafana/provisioning"
+      - "/srv/pterodactyl/monitoring/grafana/conf:/etc/grafana/conf"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=grafana_admin_2024
+      - GF_SECURITY_ADMIN_EMAIL=admin@yourdomain.com
+      - GF_SERVER_ROOT_URL=http://grafana:3000
+      - GF_SERVER_DOMAIN=yourdomain.com
+      - GF_SERVER_HTTP_PORT=3000
+      - GF_SERVER_HTTP_ADDR=0.0.0.0
+      - GF_SERVER_PROTOCOL=http
+      - GF_SERVER_ENABLE_GZIP=true
+      - GF_SERVER_ENFORCE_DOMAIN=false
+      - GF_SERVER_ROUTER_LOGGING=false
+      - GF_SERVER_STATIC_ROUTE_PATH=/public
+      - GF_SERVER_STATIC_ROUTE_PREFIX=/public
+      - GF_SERVER_CERT_FILE=/etc/ssl/certs/server.crt
+      - GF_SERVER_CERT_KEY=/etc/ssl/private/server.key
+      - GF_DATABASE_TYPE=sqlite3
+      - GF_DATABASE_HOST=127.0.0.1:3306
+      - GF_DATABASE_NAME=grafana
+      - GF_DATABASE_USER=grafana
+      - GF_DATABASE_PASSWORD=grafana_db_password_2024
+      - GF_DATABASE_SSL_MODE=disable
+      - GF_DATABASE_PATH=/var/lib/grafana/grafana.db
+      - GF_DATABASE_MAX_IDLE_CONN=2
+      - GF_DATABASE_MAX_OPEN_CONN=0
+      - GF_DATABASE_CONN_MAX_LIFETIME=14400
+      - GF_DATABASE_LOG_QUERIES=false
+      - GF_DATABASE_CACHE_ENABLED=true
+      - GF_DATABASE_CACHE_TTL=5m
+      - GF_DATABASE_CACHE_SIZE=1000
+      - GF_DATABASE_QUERY_RETRIES=3
+      - GF_DATABASE_QUERY_TIMEOUT=30s
+      - GF_DATABASE_MIGRATE=true
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_USERS_ALLOW_ORG_CREATE=false
+      - GF_USERS_AUTO_ASSIGN_ORG=true
+      - GF_USERS_AUTO_ASSIGN_ORG_ROLE=Viewer
+      - GF_USERS_VIEWERS_CAN_EDIT=false
+      - GF_USERS_EDITORS_CAN_ADMIN=false
+      - GF_USERS_DEFAULT_THEME=dark
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+      - GF_AUTH_BASIC_ENABLED=true
+      - GF_AUTH_LDAP_ENABLED=false
+      - GF_AUTH_LDAP_CONFIG_FILE=/etc/grafana/ldap.toml
+      - GF_AUTH_LDAP_ALLOW_SIGN_UP=true
+      - GF_AUTH_GOOGLE_ENABLED=false
+      - GF_AUTH_GOOGLE_CLIENT_ID=your-google-client-id
+      - GF_AUTH_GOOGLE_CLIENT_SECRET=your-google-client-secret
+      - GF_AUTH_GOOGLE_ALLOWED_DOMAINS=yourdomain.com
+      - GF_AUTH_GOOGLE_ALLOW_SIGN_UP=true
+      - GF_AUTH_GITHUB_ENABLED=false
+      - GF_AUTH_GITHUB_CLIENT_ID=your-github-client-id
+      - GF_AUTH_GITHUB_CLIENT_SECRET=your-github-client-secret
+      - GF_AUTH_GITHUB_ALLOWED_ORGS=your-org
+      - GF_AUTH_GITHUB_ALLOW_SIGN_UP=true
+      - GF_AUTH_GITLAB_ENABLED=false
+      - GF_AUTH_GITLAB_CLIENT_ID=your-gitlab-client-id
+      - GF_AUTH_GITLAB_CLIENT_SECRET=your-gitlab-client-secret
+      - GF_AUTH_GITLAB_ALLOWED_GROUPS=your-group
+      - GF_AUTH_GITLAB_ALLOW_SIGN_UP=true
+      - GF_LOG_MODE=console file
+      - GF_LOG_LEVEL=info
+      - GF_LOG_FILTERS=
+      - GF_LOG_FILE_PATH=/var/log/grafana
+      - GF_LOG_FILE_MAX_SIZE_DAYS=30
+      - GF_LOG_FILE_MAX_SIZE_MB=100
+      - GF_LOG_FILE_MAX_SIZE_BACKUPS=10
+      - GF_METRICS_ENABLED=true
+      - GF_METRICS_INTERVAL=10s
+      - GF_METRICS_GRAPHITE_ADDRESS=localhost:2003
+      - GF_METRICS_GRAPHITE_PREFIX=grafana
+      - GF_METRICS_PROMETHEUS_ENABLED=true
+      - GF_METRICS_PROMETHEUS_ADDRESS=:3001
+      - GF_METRICS_PROMETHEUS_NAMESPACE=grafana
+      - GF_METRICS_PROMETHEUS_PATH=/metrics
+      - GF_METRICS_PROMETHEUS_AUTH_ENABLED=false
+      - GF_METRICS_PROMETHEUS_AUTH_USER=admin
+      - GF_METRICS_PROMETHEUS_AUTH_PASSWORD=grafana_metrics_password_2024
+      - GF_SMTP_ENABLED=true
+      - GF_SMTP_HOST=smtp.gmail.com:587
+      - GF_SMTP_USER=your-email@gmail.com
+      - GF_SMTP_PASSWORD=your-app-password-here
+      - GF_SMTP_FROM_ADDRESS=noreply@yourdomain.com
+      - GF_SMTP_FROM_NAME=Grafana
+      - GF_SMTP_EHLO_IDENTITY=yourdomain.com
+      - GF_SMTP_STARTTLS_POLICY=opportunistic
+      - GF_SMTP_SKIP_VERIFY=false
+      - GF_SMTP_TLS_CONFIG=
+      - GF_PANELS_DISABLE_SANITIZE_HTML=false
+      - GF_ALERTING_ENABLED=true
+      - GF_ALERTING_EVALUATE_TIMEOUT=30s
+      - GF_ALERTING_MAX_ATTEMPTS=3
+      - GF_ALERTING_MIN_INTERVAL=30s
+      - GF_ALERTING_NOTIFICATION_ATTEMPTS=3
+      - GF_ALERTING_NOTIFICATION_TIMEOUT=30s
+      - GF_ALERTING_RESOLVED_ATTEMPTS=3
+      - GF_ALERTING_SCHEDULE_TIMEOUT=10s
+      - GF_ALERTING_EXECUTOR_QUEUE_SIZE=1000
+      - GF_ALERTING_EXECUTOR_WORKERS=5
+      - GF_ALERTING_SERVER_HOST=:9094
+      - GF_ALERTING_SERVER_LISTEN=0.0.0.0
+      - GF_ALERTING_SERVER_ADVERTISE=:9094
+      - GF_ALERTING_SERVER_GRACEFUL_TIMEOUT=30s
+      - GF_ALERTING_SERVER_JOB_NAME=grafana
+      - GF_ALERTING_SERVER_CLUSTER_NAME=grafana
+      - GF_ALERTING_SERVER_SYNC_INTERVAL=15s
+      - GF_ALERTING_SERVER_PEER_TIMEOUT=5s
+      - GF_ALERTING_SERVER_INTERVAL=10s
+      - GF_ALERTING_SERVER_REMOTE=true
+      - GF_ALERTING_SERVER_REMOTE_URL=:9094
+      - GF_ALERTING_SERVER_REMOTE_JOB_NAME=grafana
+      - GF_ALERTING_SERVER_REMOTE_SEND_INTERVAL=15s
+      - GF_ALERTING_SERVER_REMOTE_SEND_TIMEOUT=5s
+      - GF_ALERTING_SERVER_REMOTE_RECEIVE_TIMEOUT=5s
+      - GF_ALERTING_SERVER_REMOTE_METRICS_PATH=/metrics
+      - GF_ALERTING_SERVER_REMOTE_METRICS_AUTH_ENABLED=false
+      - GF_ALERTING_SERVER_REMOTE_METRICS_AUTH_USER=admin
+      - GF_ALERTING_SERVER_REMOTE_METRICS_AUTH_PASSWORD=grafana_metrics_password_2024
+    ports:
+      - "3000:3000"
+    networks:
+      - monitoring_network
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1024M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      <<: *logging-environment
+      
+  node-exporter:
+    image: prom/node-exporter:v1.7.0
+    container_name: node-exporter
+    restart: always
+    volumes:
+      - "/proc:/host/proc:ro"
+      - "/sys:/host/sys:ro"
+      - "/:/rootfs:ro"
+      - "/dev:/host/dev:ro"
+      - "/run:/host/run:ro"
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/rootfs'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)'
+      - '--collector.netclass.ignored-devices=^(veth.*|docker.*|br-.*|lo)$$'
+      - '--collector.netdev.ignored-devices=^(veth.*|docker.*|br-.*|lo)$$'
+      - '--collector.diskstats.ignored-devices=^(ram|loop|fd|(h|s|v|xv)d[a-z]|nvme\\d+n\\d+p\\d+|dm-|md\\d+|sr\\d+|sd[a-z]\\d+)$'
+      - '--collector.meminfo.numa-enabled=false'
+      - '--collector.arp.enabled=true'
+      - '--collector.bcache.enabled=true'
+      - '--collector.bonding.enabled=true'
+      - '--collector.conntrack.enabled=true'
+      - '--collector.cpu.enabled=true'
+      - '--collector.diskstats.enabled=true'
+      - '--collector.edac.enabled=true'
+      - '--collector.entropy.enabled=true'
+      - '--collector.exec.enabled=true'
+      - '--collector.filesystem.enabled=true'
+      - '--collector.hwmon.enabled=true'
+      - '--collector.infiniband.enabled=true'
+      - '--collector.interrupts.enabled=true'
+      - '--collector.ipvs.enabled=true'
+      - '--collector.ksmd.enabled=true'
+      - '--collector.loadavg.enabled=true'
+      - '--collector.mdadm.enabled=true'
+      - '--collector.meminfo.enabled=true'
+      - '--collector.netclass.enabled=true'
+      - '--collector.netdev.enabled=true'
+      - '--collector.netstat.enabled=true'
+      - '--collector.nfs.enabled=true'
+      - '--collector.nfsd.enabled=true'
+      - '--collector.pressure.enabled=true'
+      - '--collector.rapl.enabled=true'
+      - '--collector.schedstat.enabled=true'
+      - '--collector.sockstat.enabled=true'
+      - '--collector.softnet.enabled=true'
+      - '--collector.stat.enabled=true'
+      - '--collector.tcpstat.enabled=true'
+      - '--collector.textfile.enabled=true'
+      - '--collector.time.enabled=true'
+      - '--collector.timex.enabled=true'
+      - '--collector.udp_queues.enabled=true'
+      - '--collector.uname.enabled=true'
+      - '--collector.vmstat.enabled=true'
+      - '--collector.wifi.enabled=true'
+      - '--collector.xfs.enabled=true'
+      - '--collector.zfs.enabled=true'
+      - '--collector.thermal_zone.enabled=true'
+      - '--collector.systemd.enabled=true'
+      - '--collector.systemd.unit-whitelist=(docker|pterodactyl|grafana|prometheus|node-exporter|cadvisor).service'
+      - '--collector.systemd.unit-blacklist=.*'
+      - '--collector.processes.enabled=true'
+      - '--collector.processes.threads-enabled=true'
+    ports:
+      - "9100:9100"
+    networks:
+      - monitoring_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    logging:
+      <<: *logging-environment
+      
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.47.2
+    container_name: cadvisor
+    restart: always
+    volumes:
+      - "/:/rootfs:ro"
+      - "/var/run:/var/run:ro"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"
+      - "/dev/disk/:/dev/disk:ro"
+      - "/etc/machine-id:/etc/machine-id:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    command:
+      - '--housekeeping_interval=10s'
+      - '--max_housekeeping_interval=15s'
+      - '--event_storage_event_limit=100000'
+      - '--event_storage_age_limit=12h'
+      - '--container_hints=/etc/cadvisor/container_hints.json'
+      - '--disable_root_cgroup_stats=false'
+      - '--disable_metrics=disk,network,tcp,udp,percpu,process'
+      - '--enable_metrics=cpu,memory,fs,io,hugetlb,user'
+      - '--docker_only=true'
+      - '--docker_env_metadata_whitelist='
+      - '--docker_container_metadata_whitelist='
+      - '--docker_default_metrics=cpu,memory,fs,io,hugetlb'
+      - '--docker_client_config=/etc/docker/daemon.json'
+      - '--docker_auth_config=/etc/docker/config.json'
+      - '--docker_tls_ca=/etc/docker/ca.pem'
+      - '--docker_tls_cert=/etc/docker/cert.pem'
+      - '--docker_tls_key=/etc/docker/key.pem'
+      - '--docker_tls_verify=false'
+      - '--store_container_labels=true'
+      - '--whitelisted_container_labels=maintained_by,environment'
+      - '--blacklisted_container_labels='
+      - '--store_container_environment_variables=false'
+      - '--whitelisted_environment_variables='
+      - '--blacklisted_environment_variables='
+      - '--store_container_filesystems=true'
+      - '--store_container_metrics=true'
+      - '--store_container_events=true'
+      - '--store_container_stats=true'
+      - '--store_container_logs=false'
+      - '--store_container_processes=false'
+      - '--store_container_connections=false'
+      - '--store_container_image_info=true'
+      - '--store_container_host_info=true'
+      - '--store_container_cloud_info=false'
+      - '--store_container_application_info=false'
+      - '--store_container_kubernetes_info=false'
+      - '--store_container_mesos_info=false'
+      - '--store_container_docker_info=true'
+      - '--store_container_rkt_info=false'
+      - '--store_container_raw_info=false'
+      - '--store_container_system_info=true'
+      - '--store_container_os_info=true'
+      - '--store_container_machine_info=true'
+      - '--store_container_network_info=true'
+      - '--store_container_storage_info=true'
+      - '--store_container_volume_info=true'
+      - '--store_container_nvidia_info=false'
+      - '--store_container_amd_info=false'
+      - '--store_container_intel_info=false'
+      - '--store_container_arm_info=false'
+      - '--store_container_cpu_info=true'
+      - '--store_container_memory_info=true'
+      - '--store_container_disk_info=true'
+      - '--store_container_io_info=true'
+      - '--store_container_hugetlb_info=true'
+      - '--store_container_process_info=false'
+      - '--store_container_thread_info=false'
+      - '--store_container_cgroup_info=true'
+      - '--store_container_namespace_info=true'
+      - '--store_container_pid_info=false'
+      - '--store_container_uid_info=false'
+      - '--store_container_gid_info=false'
+      - '--store_container_username_info=false'
+      - '--store_container_groupname_info=false'
+    ports:
+      - "8082:8080"
+    networks:
+      - monitoring_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    logging:
+      <<: *logging-environment
+      
+  # ===== LOGGING SERVICES =====
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
+    container_name: elasticsearch
+    restart: always
+    environment:
+      - node.name=elasticsearch
+      - cluster.name=pterodactyl-cluster
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.http.ssl.keystore.path=/usr/share/elasticsearch/config/certs/elastic-certificates.p12
+      - xpack.security.http.ssl.truststore.path=/usr/share/elasticsearch/config/certs/elastic-certificates.p12
+      - xpack.security.transport.ssl.verification_mode=certificate
+      - xpack.security.transport.ssl.keystore.path=/usr/share/elasticsearch/config/certs/elastic-certificates.p12
+      - xpack.security.transport.ssl.truststore.path=/usr/share/elasticsearch/config/certs/elastic-certificates.p12
+      - xpack.ml.enabled=false
+      - xpack.monitoring.enabled=true
+      - xpack.monitoring.collection.enabled=true
+      - xpack.watcher.enabled=false
+      - xpack.graph.enabled=false
+      - xpack.sql.enabled=true
+      - xpack.rollup.enabled=false
+      - xpack.ccr.enabled=false
+      - xpack.data_streams.enabled=true
+      - xpack.enrich.enabled=false
+      - xpack.ilm.enabled=true
+      - xpack.monitoring.collection.interval=10s
+      - xpack.monitoring.collection.min_interval=10s
+      - xpack.monitoring.collection.index.recovery.active_only=false
+      - xpack.monitoring.collection.ccr.enabled=true
+      - xpack.monitoring.collection.cluster.stats.enabled=true
+      - xpack.monitoring.collection.indices.stats.enabled=true
+      - xpack.monitoring.collection.indices.fielddata.stats.enabled=true
+      - xpack.monitoring.collection.indices.segments.stats.enabled=true
+      - xpack.monitoring.collection.indices.shards.stats.enabled=true
+      - xpack.monitoring.collection.indices.recovery.stats.enabled=true
+      - xpack.monitoring.collection.indices.translog.stats.enabled=true
+      - xpack.monitoring.collection.indices.indexing.stats.enabled=true
+      - xpack.monitoring.collection.indices.search.stats.enabled=true
+      - xpack.monitoring.collection.indices.get.stats.enabled=true
+      - xpack.monitoring.collection.indices.delete.stats.enabled=true
+      - xpack.monitoring.collection.indices.merge.stats.enabled=true
+      - xpack.monitoring.collection.indices.refresh.stats.enabled=true
+      - xpack.monitoring.collection.indices.flush.stats.enabled=true
+      - xpack.monitoring.collection.indices.warmer.stats.enabled=true
+      - xpack.monitoring.collection.indices.query_cache.stats.enabled=true
+      - xpack.monitoring.collection.indices.fielddata_cache.stats.enabled=true
+      - xpack.monitoring.collection.indices.completion.stats.enabled=true
+      - xpack.monitoring.collection.indices.suggest.stats.enabled=true
+      - xpack.monitoring.collection.indices.percolate.stats.enabled=true
+      - xpack.monitoring.collection.indices.bulk.stats.enabled=true
+      - xpack.monitoring.collection.indices.analyze.stats.enabled=true
+      - xpack.monitoring.collection.indices.render_search_template.stats.enabled=true
+      - xpack.monitoring.collection.indices.scripts.stats.enabled=true
+      - xpack.monitoring.collection.indices.termvectors.stats.enabled=true
+      - xpack.monitoring.collection.indices.multi_get.stats.enabled=true
+      - xpack.monitoring.collection.indices.multi_search.stats.enabled=true
+      - xpack.monitoring.collection.indices.exists.stats.enabled=true
+      - xpack.monitoring.collection.indices.head.stats.enabled=true
+      - xpack.monitoring.collection.indices.options.stats.enabled=true
+      - xpack.monitoring.collection.indices.trace.stats.enabled=true
+      - xpack.monitoring.collection.indices.put_mapping.stats.enabled=true
+      - xpack.monitoring.collection.indices.put_settings.stats.enabled=true
+      - xpack.monitoring.collection.indices.put_alias.stats.enabled=true
+      - xpack.monitoring.collection.indices.delete_alias.stats.enabled=true
+      - xpack.monitoring.collection.indices.get_alias.stats.enabled=true
+      - xpack.monitoring.collection.indices.exists_alias.stats.enabled=true
+      - xpack.monitoring.collection.indices.head_alias.stats.enabled=true
+      - xpack.monitoring.collection.indices.options_alias.stats.enabled=true
+      - xpack.monitoring.collection.indices.trace_alias.stats.enabled=true
+      - xpack.monitoring.collection.indices.put_index_template.stats.enabled=true
+      - xpack.monitoring.collection.indices.get_index_template.stats.enabled=true
+      - xpack.monitoring.collection.indices.delete_index_template.stats.enabled=true
+      - xpack.monitoring.collection.indices.head_index_template.stats.enabled=true
+      - xpack.monitoring.collection.indices.options_index_template.stats.enabled=true
+      - xpack.monitoring.collection.indices.trace_index_template.stats.enabled=true
+      - xpack.monitoring.collection.indices.simulate_index_template.stats.enabled=true
+      - xpack.monitoring.collection.indices.render_search_template.stats.enabled=true
+      - xpack.monitoring.collection.indices.scripts.stats.enabled=true
+      - xpack.monitoring.collection.indices.termvectors.stats.enabled=true
+      - xpack.monitoring.collection.indices.multi_get.stats.enabled=true
+      - xpack.monitoring.collection.indices.multi_search.stats.enabled=true
+      - xpack.monitoring.collection.indices.exists.stats.enabled=true
+      - xpack.monitoring.collection.indices.head.stats.enabled=true
+      - xpack.monitoring.collection.indices.options.stats.enabled=true
+      - xpack.monitoring.collection.indices.trace.stats.enabled=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - "/srv/pterodactyl/logging/elasticsearch:/usr/share/elasticsearch/data"
+      - "/srv/pterodactyl/logging/elasticsearch/backup:/usr/share/elasticsearch/backup"
+      - "/srv/pterodactyl/logging/elasticsearch/config:/usr/share/elasticsearch/config"
+      - "/srv/pterodactyl/logging/elasticsearch/logs:/usr/share/elasticsearch/logs"
+      - "/srv/pterodactyl/logging/elasticsearch/plugins:/usr/share/elasticsearch/plugins"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - logging_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4096M
+        reservations:
+          cpus: '0.5'
+          memory: 1024M
+    logging:
+      <<: *logging-environment
+      
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.12.0
+    container_name: logstash
+    restart: always
+    volumes:
+      - "/srv/pterodactyl/logging/logstash:/usr/share/logstash/config"
+      - "/srv/pterodactyl/logging/logstash/pipeline:/usr/share/logstash/pipeline"
+      - "/srv/pterodactyl/logging/logstash/patterns:/usr/share/logstash/patterns"
+      - "/srv/pterodactyl/logging/logstash/templates:/usr/share/logstash/templates"
+      - "/srv/pterodactyl/logging/logstash/data:/usr/share/logstash/data"
+      - "/srv/pterodactyl/logging/logstash/logs:/usr/share/logstash/logs"
+      - "/srv/pterodactyl/logging/logstash/plugins:/usr/share/logstash/plugins"
+    environment:
+      - LS_JAVA_OPTS=-Xms2g -Xmx2g
+      - LS_LOG_LEVEL=info
+      - LS_LOG_FILE=/usr/share/logstash/logs/logstash.log
+      - LS_LOG_FORMAT=plain
+      - LS_PIPELINE_WORKERS=4
+      - LS_PIPELINE_BATCH_SIZE=125
+      - LS_PIPELINE_BATCH_DELAY=50
+      - LS_PIPELINE_UNSAFE_SHUTDOWN=false
+      - LS_QUEUE_TYPE=persisted
+      - LS_QUEUE_PAGE_CAPACITY=250mb
+      - LS_QUEUE_MAX_BYTES=2gb
+      - LS_QUEUE_MAX_EVENTS=0
+      - LS_QUEUE_CHECKPOINT_WRITES=1024
+      - LS_QUEUE_CHECKPOINT_INTERVAL=1000
+      - LS_QUEUE_DRAIN_TIMEOUT=10
+      - LS_DEAD_LETTER_QUEUE_ENABLE=true
+      - LS_DEAD_LETTER_QUEUE_MAX_BYTES=2gb
+      - LS_DEAD_LETTER_QUEUE_FLUSH_INTERVAL=5000
+      - LS_DEAD_LETTER_QUEUE_PLUGIN=elasticsearch
+      - LS_DEAD_LETTER_QUEUE_HOST=elasticsearch
+      - LS_DEAD_LETTER_QUEUE_PORT=9200
+      - LS_DEAD_LETTER_QUEUE_INDEX=dead-letter-queue
+      - LS_DEAD_LETTER_QUEUE_USER=elastic
+      - LS_DEAD_LETTER_QUEUE_PASSWORD=changeme
+      - LS_DEAD_LETTER_QUEUE_SSL_ENABLED=false
+      - LS_DEAD_LETTER_QUEUE_SSL_VERIFY=false
+      - LS_DEAD_LETTER_QUEUE_SSL_CA=/usr/share/logstash/config/certs/ca.pem
+      - LS_DEAD_LETTER_QUEUE_SSL_CERT=/usr/share/logstash/config/certs/cert.pem
+      - LS_DEAD_LETTER_QUEUE_SSL_KEY=/usr/share/logstash/config/certs/key.pem
+      - LS_DEAD_LETTER_QUEUE_SSL_KEY_PASSWORD=
+      - LS_MONITORING_ENABLED=true
+      - LS_MONITORING_INTERVAL=10s
+      - LS_MONITORING_ELASTICSEARCH_HOSTS=["http://elasticsearch:9200"]
+      - LS_MONITORING_ELASTICSEARCH_USERNAME=elastic
+      - LS_MONITORING_ELASTICSEARCH_PASSWORD=changeme
+      - LS_MONITORING_ELASTICSEARCH_SSL_ENABLED=false
+      - LS_MONITORING_ELASTICSEARCH_SSL_VERIFY=false
+      - LS_MONITORING_ELASTICSEARCH_SSL_CA=/usr/share/logstash/config/certs/ca.pem
+      - LS_MONITORING_ELASTICSEARCH_SSL_CERT=/usr/share/logstash/config/certs/cert.pem
+      - LS_MONITORING_ELASTICSEARCH_SSL_KEY=/usr/share/logstash/config/certs/key.pem
+      - LS_MONITORING_ELASTICSEARCH_SSL_KEY_PASSWORD=
+      - LS_MONITORING_ELASTICSEARCH_SSL_TRUSTSTORE_PATH=
+      - LS_MONITORING_ELASTICSEARCH_SSL_TRUSTSTORE_PASSWORD=
+      - LS_MONITORING_ELASTICSEARCH_SSL_KEYSTORE_PATH=
+      - LS_MONITORING_ELASTICSEARCH_SSL_KEYSTORE_PASSWORD=
+      - LS_MONITORING_ELASTICSEARCH_INDEX=monitoring-logstash
+      - LS_MONITORING_ELASTICSEARCH_TEMPLATE_OVERWRITE=true
+      - LS_MONITORING_ELASTICSEARCH_TEMPLATE_NAME=logstash
+      - LS_MONITORING_ELASTICSEARCH_TEMPLATE_FILE=/usr/share/logstash/templates/logstash-template.json
+      - LS_MONITORING_ELASTICSEARCH_DEFAULT_TIMEOUT=30
+      - LS_MONITORING_ELASTICSEARCH_SNIFFING=false
+      - LS_MONITORING_ELASTICSEARCH_RETRY_ON_FAILURE=true
+      - LS_MONITORING_ELASTICSEARCH_MAX_RETRIES=3
+      - LS_MONITORING_ELASTICSEARCH_RETRY_WAIT=5
+      - LS_CONFIG_RELOAD_AUTOMATIC=true
+      - LS_CONFIG_RELOAD_INTERVAL=3s
+      - LS_HTTP_HOST=0.0.0.0
+      - LS_HTTP_PORT=9600
+      - LS_HTTP_COMPRESSION=true
+      - LS_HTTP_CORS_ENABLED=false
+      - LS_HTTP_CORS_ALLOW_ORIGIN=*
+      - LS_HTTP_ENVIRONMENT=production
+      - LS_HTTP_VERSION=v1
+      - LS_HTTP_AUTH_ENABLED=false
+      - LS_HTTP_AUTH_USER=admin
+      - LS_HTTP_AUTH_PASSWORD=logstash_admin_2024
+      - LS_HTTP_SSL_ENABLED=false
+      - LS_HTTP_SSL_KEY=/usr/share/logstash/config/certs/key.pem
+      - LS_HTTP_SSL_CERT=/usr/share/logstash/config/certs/cert.pem
+      - LS_HTTP_SSL_CA=/usr/share/logstash/config/certs/ca.pem
+      - LS_HTTP_SSL_VERIFY=true
+      - LS_HTTP_SSL_KEY_PASSWORD=
+      - LS_HTTP_SSL_CIPHERS=TLSv1.2:TLSv1.3
+      - LS_HTTP_SSL_PROTOCOLS=TLSv1.2:TLSv1.3
+      - LS_HTTP_SSL_SESSION_TIMEOUT=300
+      - LS_HTTP_SSL_SESSION_CACHE_SIZE=1000
+      - LS_HTTP_SSL_SESSION_CACHE_TIMEOUT=300
+    ports:
+      - "5044:5044"
+      - "5045:5045"
+      - "5046:5046"
+      - "9600:9600"
+    networks:
+      - logging_network
+      - monitoring_network
+    depends_on:
+      - elasticsearch
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2048M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      <<: *logging-environment
+      
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.12.0
+    container_name: kibana
+    restart: always
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=changeme
+      - ELASTICSEARCH_SSL_VERIFICATION_MODE=none
+      - ELASTICSEARCH_REQUEST_TIMEOUT=30000
+      - ELASTICSEARCH_SHARD_TIMEOUT=30000
+      - ELASTICSEARCH_PING_TIMEOUT=30000
+      - ELASTICSEARCH_STARTUP_TIMEOUT=30000
+      - ELASTICSEARCH_REQUEST_HEADERS_WHITELIST=
+      - ELASTICSEARCH_CUSTOM_HEADERS=
+      - ELASTICSEARCH_API_VERSION=7
+      - ELASTICSEARCH_SNIFF_STARTUP_INTERVAL=10000
+      - ELASTICSEARCH_SNIFF_INTERVAL=60000
+      - ELASTICSEARCH_SNIFF_ON_CONNECTION_FAULT=false
+      - ELASTICSEARCH_SNIFF_ON_STARTUP=false
+      - ELASTICSEARCH_MAX_RETRIES=3
+      - ELASTICSEARCH_RETRY_ON_FAILURE=true
+      - ELASTICSEARCH_RETRY_WAIT=5
+      - ELASTICSEARCH_DEFAULT_TIMEOUT=30
+      - ELASTICSEARCH_CONNECTION_REQUEST_TIMEOUT=30000
+      - ELASTICSEARCH_CONNECTION_TIMEOUT=30000
+      - ELASTICSEARCH_SOCKET_TIMEOUT=30000
+      - ELASTICSEARCH_READ_TIMEOUT=30000
+      - ELASTICSEARCH_WRITE_TIMEOUT=30000
+      - ELASTICSEARCH_PING_TIMEOUT=30000
+      - ELASTICSEARCH_REQUEST_TIMEOUT=30000
+      - ELASTICSEARCH_SHARD_TIMEOUT=30000
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=5601
+      - SERVER_NAME=kibana
+      - SERVER_DEFAULT_ROUTE=/
+      - SERVER_BASEPATH=
+      - SERVER_REWRITEBASEPATH=false
+      - SERVER_MAX_PAYLOAD_SIZE=1048576
+      - SERVER_CUSTOM_RESPONSE_HEADERS=
+      - SERVER_COMPRESSION_ENABLED=true
+      - SERVER_COMPRESSION_LEVEL=6
+      - SERVER_COMPRESSION_THRESHOLD=1024
+      - SERVER_COMPRESSION_MIME_TYPES=application/javascript,application/json,application/xml,text/css,text/html,text/plain,text/xml
+      - SERVER_CORS_ENABLED=false
+      - SERVER_CORS_ORIGIN=*
+      - SERVER_CORS_METHODS=GET,POST,PUT,DELETE,OPTIONS
+      - SERVER_CORS_HEADERS=Origin,Accept-Encoding,Authorization,Content-Type,Accept-Language,If-Match,If-None-Match,If-Modified-Since,If-Unmodified-Since
+      - SERVER_CORS_MAX_AGE=86400
+      - SERVER_SSL_ENABLED=false
+      - SERVER_SSL_KEY=/etc/ssl/private/server.key
+      - SERVER_SSL_CERT=/etc/ssl/certs/server.crt
+      - SERVER_SSL_CA=/etc/ssl/certs/ca.crt
+      - SERVER_SSL_CERT_AUTHORITIES=/etc/ssl/certs/ca.crt
+      - SERVER_SSL_REDIRECT_HTTP_FROM_PORT=80
+      - SERVER_SSL_KEY_PASSPHRASE=
+      - SERVER_SSL_CIPHERS=TLSv1.2:TLSv1.3
+      - SERVER_SSL_PROTOCOLS=TLSv1.2:TLSv1.3
+      - SERVER_SSL_SESSION_TIMEOUT=300
+      - SERVER_SSL_SESSION_CACHE_SIZE=1000
+      - SERVER_SSL_SESSION_CACHE_TIMEOUT=300
+      - SERVER_SSL_HONOR_CIPHER_ORDER=true
+      - SERVER_SSL_PREFER_SERVER_CIPHERS=true
+      - SERVER_SSL_CLIENT_AUTH=none
+      - SERVER_SSL_VERIFY_CLIENT=none
+      - SERVER_SSL_CLIENT_CA=/etc/ssl/certs/client.crt
+      - SERVER_SSL_CLIENT_KEY=/etc/ssl/private/client.key
+      - SERVER_SSL_CLIENT_PASSPHRASE=
+      - LOGGING_QUIET=false
+      - LOGGING_VERBOSE=false
+      - LOGGING_SILENT=false
+      - LOGGING_LOG_LEVELS_DEFAULT=info
+      - LOGGING_LOG_LEVELS_ROOT=info
+      - LOGGING_LOG_LEVELS_KIBANA=info
+      - LOGGING_LOG_LEVELS_ELASTICSEARCH=info
+      - LOGGING_LOG_LEVELS_SERVER=info
+      - LOGGING_LOG_LEVELS_PLUGINS=info
+      - LOGGING_LOG_LEVELS_OPTIMIZE=info
+      - LOGGING_LOG_LEVELS_STATUS=info
+      - LOGGING_LOG_LEVELS_SAVED_OBJECTS=info
+      - LOGGING_LOG_LEVELS_TASK_MANAGER=info
+      - LOGGING_LOG_LEVELS_ALERTS=info
+      - LOGGING_LOG_LEVELS_ACTIONS=info
+      - LOGGING_LOG_LEVELS_REPORTING=info
+      - LOGGING_LOG_LEVELS_SPACES=info
+      - LOGGING_LOG_LEVELS_SECURITY=info
+      - LOGGING_LOG_LEVELS_ENTERPRISE_SEARCH=info
+      - LOGGING_LOG_LEVELS_INDEX_MANAGEMENT=info
+      - LOGGING_LOG_LEVELS_MONITORING=info
+      - LOGGING_LOG_LEVELS_GRAPH=info
+      - LOGGING_LOG_LEVELS_MAPS=info
+      - LOGGING_LOG_LEVELS_ML=info
+      - LOGGING_LOG_LEVELS_ROLLUP=info
+      - LOGGING_LOG_LEVELS_CANVAS=info
+      - LOGGING_LOG_LEVELS_DASHBOARD=info
+      - LOGGING_LOG_LEVELS_VISUALIZE=info
+      - LOGGING_LOG_LEVELS_DISCOVER=info
+      - LOGGING_LOG_LEVELS_HOME=info
+      - LOGGING_LOG_LEVELS_MANAGEMENT=info
+      - LOGGING_LOG_LEVELS_DEVELOPER=info
+      - LOGGING_LOG_LEVELS_APM=info
+      - LOGGING_LOG_LEVELS_FLEET=info
+      - LOGGING_LOG_LEVELS_SIEM=info
+      - LOGGING_LOG_LEVELS_CASES=info
+      - LOGGING_LOG_LEVELS_OBSERVABILITY=info
+      - LOGGING_LOG_LEVELS_STACK_ALERTS=info
+      - LOGGING_LOG_LEVELS_TRANSFORM=info
+      - LOGGING_LOG_LEVELS_LENS=info
+      - LOGGING_LOG_LEVELS_METRICS=info
+      - LOGGING_LOG_LEVELS_LOGS=info
+      - LOGGING_LOG_LEVELS_ANALYTICS=info
+      - LOGGING_LOG_LEVELS_SEARCH=info
+      - LOGGING_LOG_LEVELS_CONTENT_MANAGEMENT=info
+      - LOGGING_LOG_LEVELS_CONNECTORS=info
+      - LOGGING_LOG_LEVELS_WORKPLACE_SEARCH=info
+      - LOGGING_LOG_LEVELS_APP_SEARCH=info
+      - MONITORING_UI_CONTAINER_ELASTICSEARCH_ENABLED=true
+      - MONITORING_UI_CONTAINER_LOGSTASH_ENABLED=true
+      - MONITORING_UI_CONTAINER_KIBANA_ENABLED=true
+      - MONITORING_UI_CONTAINER_BEATS_ENABLED=true
+      - MONITORING_UI_CONTAINER_APM_ENABLED=true
+      - MONITORING_UI_CONTAINER_ENTERPRISE_SEARCH_ENABLED=true
+      - MONITORING_UI_CONTAINER_FLEET_ENABLED=true
+      - MONITORING_UI_CONTAINER_INTEGRATIONS_ENABLED=true
+      - MONITORING_UI_CONTAINER_ALERTS_ENABLED=true
+      - MONITORING_UI_CONTAINER_ACTIONS_ENABLED=true
+      - MONITORING_UI_CONTAINER_REPORTING_ENABLED=true
+      - MONITORING_UI_CONTAINER_SPACES_ENABLED=true
+      - MONITORING_UI_CONTAINER_SECURITY_ENABLED=true
+      - MONITORING_UI_CONTAINER_INDEX_MANAGEMENT_ENABLED=true
+      - MONITORING_UI_CONTAINER_GRAPH_ENABLED=true
+      - MONITORING_UI_CONTAINER_MAPS_ENABLED=true
+      - MONITORING_UI_CONTAINER_ML_ENABLED=true
+      - MONITORING_UI_CONTAINER_ROLLUP_ENABLED=true
+      - MONITORING_UI_CONTAINER_CANVAS_ENABLED=true
+      - MONITORING_UI_CONTAINER_DASHBOARD_ENABLED=true
+      - MONITORING_UI_CONTAINER_VISUALIZE_ENABLED=true
+      - MONITORING_UI_CONTAINER_DISCOVER_ENABLED=true
+      - MONITORING_UI_CONTAINER_HOME_ENABLED=true
+      - MONITORING_UI_CONTAINER_MANAGEMENT_ENABLED=true
+      - MONITORING_UI_CONTAINER_DEVELOPER_ENABLED=true
+      - MONITORING_UI_CONTAINER_APM_ENABLED=true
+      - MONITORING_UI_CONTAINER_FLEET_ENABLED=true
+      - MONITORING_UI_CONTAINER_SIEM_ENABLED=true
+      - MONITORING_UI_CONTAINER_CASES_ENABLED=true
+      - MONITORING_UI_CONTAINER_OBSERVABILITY_ENABLED=true
+      - MONITORING_UI_CONTAINER_STACK_ALERTS_ENABLED=true
+      - MONITORING_UI_CONTAINER_TRANSFORM_ENABLED=true
+      - MONITORING_UI_CONTAINER_LENS_ENABLED=true
+      - MONITORING_UI_CONTAINER_METRICS_ENABLED=true
+      - MONITORING_UI_CONTAINER_LOGS_ENABLED=true
+      - MONITORING_UI_CONTAINER_ANALYTICS_ENABLED=true
+      - MONITORING_UI_CONTAINER_SEARCH_ENABLED=true
+      - MONITORING_UI_CONTAINER_CONTENT_MANAGEMENT_ENABLED=true
+      - MONITORING_UI_CONTAINER_CONNECTORS_ENABLED=true
+      - MONITORING_UI_CONTAINER_WORKPLACE_SEARCH_ENABLED=true
+      - MONITORING_UI_CONTAINER_APP_SEARCH_ENABLED=true
+    ports:
+      - "5601:5601"
+    networks:
+      - logging_network
+      - monitoring_network
+    depends_on:
+      - elasticsearch
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1024M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    logging:
+      <<: *logging-environment
+      
+  # ===== ADDITIONAL SERVICES =====
+  nginx-proxy:
+    image: nginx:1.25-alpine
+    container_name: nginx-proxy
+    restart: always
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - "/srv/pterodactyl/nginx:/etc/nginx/conf.d"
+      - "/srv/pterodactyl/certs:/etc/nginx/certs"
+      - "/srv/pterodactyl/nginx/logs:/var/log/nginx"
+      - "/srv/pterodactyl/nginx/conf:/etc/nginx/conf"
+      - "/srv/pterodactyl/nginx/html:/usr/share/nginx/html"
+      - "/srv/pterodactyl/nginx/stream:/etc/nginx/stream"
+    environment:
+      - NGINX_HOST=yourdomain.com
+      - NGINX_PORT=80
+      - NGINX_SSL_PORT=443
+      - NGINX_WORKER_PROCESSES=auto
+      - NGINX_WORKER_CONNECTIONS=1024
+      - NGINX_KEEPALIVE_TIMEOUT=65
+      - NGINX_SEND_TIMEOUT=60
+      - NGINX_CLIENT_MAX_BODY_SIZE=100M
+      - NGINX_CLIENT_BODY_BUFFER_SIZE=128k
+      - NGINX_CLIENT_HEADER_BUFFER_SIZE=1k
+      - NGINX_LARGE_CLIENT_HEADER_BUFFERS=4 8k
+      - NGINX_GZIP_ON=on
+      - NGINX_GZIP_COMP_LEVEL=6
+      - NGINX_GZIP_VARY=on
+      - NGINX_GZIP_TYPES=text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript
+      - NGINX_PROXY_BUFFERS=8 32k
+      - NGINX_PROXY_BUFFER_SIZE=32k
+      - NGINX_PROXY_BUSY_BUFFERS_SIZE=64k
+      - NGINX_PROXY_TEMP_FILE_WRITE_SIZE=64k
+      - NGINX_PROXY_READ_TIMEOUT=300
+      - NGINX_PROXY_CONNECT_TIMEOUT=300
+      - NGINX_PROXY_SEND_TIMEOUT=300
+      - NGINX_PROXY_HTTP_VERSION=1.1
+      - NGINX_PROXY_SET_HEADER_UPGRADE=$http_upgrade
+      - NGINX_PROXY_SET_HEADER_CONNECTION=upgrade
+      - NGINX_PROXY_SET_HEADER_HOST=$host
+      - NGINX_PROXY_SET_HEADER_X-REAL-IP=$remote_addr
+      - NGINX_PROXY_SET_HEADER_X-FORWARDED-FOR=$proxy_add_x_forwarded_for
+      - NGINX_PROXY_SET_HEADER_X-FORWARDED-PROTO=$scheme
+      - NGINX_PROXY_SET_HEADER_X-FORWARDED-HOST=$host
+      - NGINX_PROXY_SET_HEADER_X-FORWARDED-PORT=$server_port
+      - NGINX_PROXY_SET_HEADER_X-ORIGINAL-URI=$request_uri
+      - NGINX_SSL_PROTOCOLS=TLSv1.2 TLSv1.3
+      - NGINX_SSL_CIPHERS=ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384
+      - NGINX_SSL_PREFER_SERVER_CIPHERS=on
+      - NGINX_SSL_SESSION_TIMEOUT=1d
+      - NGINX_SSL_SESSION_CACHE=shared:SSL:50m
+      - NGINX_SSL_SESSION_TICKETS=on
+      - NGINX_SSL_BUFFER_SIZE=4k
+      - NGINX_SSL_STAPLING=on
+      - NGINX_SSL_STAPLING_VERIFY=on
+      - NGINX_SSL_TRUSTED_CERTIFICATE=/etc/nginx/certs/chain.pem
+      - NGINX_SSL_VERIFY_CLIENT=off
+      - NGINX_SSL_VERIFY_DEPTH=1
+      - NGINX_SSL_CLIENT_CERTIFICATE=/etc/nginx/certs/client.crt
+      - NGINX_SSL_CLIENT_KEY=/etc/nginx/certs/client.key
+      - NGINX_SSL_CLIENT_PASSWORD=
+      - NGINX_SSL_CRL=/etc/nginx/certs/crl.pem
+      - NGINX_SSL_OCSP_RESPONDER=http://ocsp.yourdomain.com
+      - NGINX_SSL_OCSP_RESPONDER_TIMEOUT=5s
+      - NGINX_SSL_OCSP_RESPONDER_CACHE=shared:OCSP:10m
+      - NGINX_SSL_OCSP_RESPONDER_CACHE_TIMEOUT=1h
+    networks:
+      - pterodactyl_network
+      - monitoring_network
+      - logging_network
+    depends_on:
+      - panel
+      - wings
+      - grafana
+      - kibana
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    logging:
+      <<: *logging-environment
+      
+  # ===== TOOLS =====
+  portainer:
+    image: portainer/portainer-ce:2.20.2
+    container_name: portainer
+    restart: always
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/srv/pterodactyl/portainer:/data"
+      - "/srv/pterodactyl/portainer/ssl:/certs"
+      - "/srv/pterodactyl/portainer/conf:/conf"
+      - "/srv/pterodactyl/portainer/logs:/logs"
+    environment:
+      - PORTAINER_SSL_ENABLED=false
+      - PORTAINER_SSL_PORT=9443
+      - PORTAINER_SSL_CERT=/certs/portainer.crt
+      - PORTAINER_SSL_KEY=/certs/portainer.key
+      - PORTAINER_SSL_CA=/certs/ca.crt
+      - PORTAINER_SSL_CLIENT_CERT=/certs/client.crt
+      - PORTAINER_SSL_CLIENT_KEY=/certs/client.key
+      - PORTAINER_SSL_VERIFY_CLIENT=off
+      - PORTAINER_SSL_VERIFY_DEPTH=1
+      - PORTAINER_SSL_CIPHERS=TLSv1.2:TLSv1.3
+      - PORTAINER_SSL_PROTOCOLS=TLSv1.2:TLSv1.3
+      - PORTAINER_SSL_SESSION_TIMEOUT=300
+      - PORTAINER_SSL_SESSION_CACHE_SIZE=1000
+      - PORTAINER_SSL_SESSION_CACHE_TIMEOUT=300
+      - PORTAINER_SSL_HONOR_CIPHER_ORDER=true
+      - PORTAINER_SSL_PREFER_SERVER_CIPHERS=true
+      - PORTAINER_AUTH_ENABLED=true
+      - PORTAINER_AUTH_JWT_EXPIRATION=1440
+      - PORTAINER_AUTH_METHOD=internal
+      - PORTAINER_AUTH_INTERNAL_USERS=admin
+      - PORTAINER_AUTH_LDAP_ENABLED=false
+      - PORTAINER_AUTH_LDAP_SERVER=ldap.yourdomain.com
+      - PORTAINER_AUTH_LDAP_PORT=389
+      - PORTAINER_AUTH_LDAP_SECURE=false
+      - PORTAINER_AUTH_LDAP_TLS_CA=/certs/ca.crt
+      - PORTAINER_AUTH_LDAP_TLS_SKIP_VERIFY=false
+      - PORTAINER_AUTH_LDAP_BASE_DN=dc=yourdomain,dc=com
+      - PORTAINER_AUTH_LDAP_BIND_DN=cn=admin,dc=yourdomain,dc=com
+      - PORTAINER_AUTH_LDAP_BIND_PASSWORD=ldap_admin_2024
+      - PORTAINER_AUTH_LDAP_USER_SEARCH_ATTRIBUTE=uid
+      - PORTAINER_AUTH_LDAP_USER_SEARCH_FILTER=(objectClass=inetOrgPerson)
+      - PORTAINER_AUTH_LDAP_GROUP_SEARCH_ATTRIBUTE=cn
+      - PORTAINER_AUTH_LDAP_GROUP_SEARCH_FILTER=(objectClass=groupOfNames)
+      - PORTAINER_AUTH_LDAP_GROUP_MEMBER_ATTRIBUTE=member
+      - PORTAINER_AUTH_LDAP_GROUP_MEMBER_PREFIX=uid=
+      - PORTAINER_AUTH_LDAP_GROUP_MEMBER_SUFFIX=
+      - PORTAINER_AUTH_LDAP_USER_GROUPS_ATTRIBUTE=memberOf
+      - PORTAINER_AUTH_LDAP_GROUP_TEAM_MAPPING_ENABLED=false
+      - PORTAINER_AUTH_LDAP_GROUP_TEAM_MAPPING_ATTRIBUTE=description
+      - PORTAINER_AUTH_LDAP_GROUP_TEAM_MAPPING_SEPARATOR=,
+      - PORTAINER_AUTH_LDAP_GROUP_TEAM_MAPPING_CASE_SENSITIVE=false
+      - PORTAINER_AUTH_LDAP_GROUP_TEAM_MAPPING_STRIP_SPACES=true
+      - PORTAINER_AUTH_LDAP_GROUP_TEAM_MAPPING_ATTRIBUTE_VALUE=team_
+      - PORTAINER_AUTH_LDAP_GROUP_TEAM_MAPPING_PREFIX=team_
+      - PORTAINER_AUTH_LDAP_GROUP_TEAM_MAPPING_SUFFIX=
+      - PORTAINER_AUTH_LDAP_GROUP_TEAM_MAPPING_DEFAULT_TEAM=default
+      - PORTAINER_AUTH_LDAP_GROUP_TEAM_MAPPING_DEFAULT_TEAM_ROLE=admin
+      - PORTAINER_AUTH_LDAP_GROUP_TEAM_MAPPING_DEFAULT_TEAM_ACCESS=all
+      - PORTAINER_AUTH_LDAP_GROUP_TEAM_MAPPING_DEFAULT_TEAM_ENDPOINT=local
+      - PORTAINER_AUTH_LDAP_GROUP_TEAM_MAPPING_DEFAULT_TEAM_REGISTRY=local
+      - PORTAINER_AUTH_LDAP_GROUP_TEAM_MAPPING_DEFAULT_TEAM_VOLUME=local
+      - PORTAINER_AUTH_LDAP_GROUP_TEAM_MAPPING_DEFAULT_TEAM_NETWORK=local
+      - PORTAINER_AUTH_LDAP_GROUP_TEAM_MAPPING_DEFAULT_TEAM_SECRET=local
+      - PORTAINER_AUTH_LDAP_GROUP_TEAM_MAPPING_DEFAULT_TEAM_CONFIG=local
+      - PORTAINER_AUTH_LDAP_GROUP_TEAM_MAPPING_DEFAULT_TEAM_CREDENTIAL=local
+      - PORTAINER_AUTH_LDAP_GROUP_TEAM_MAPPING_DEFAULT_TEAM_ACCESS=local
+    ports:
+      - "9000:9000"
+      - "9443:9443"
+    networks:
+      - monitoring_network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    logging:
+      <<: *logging-environment
+      
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis-commander
+    restart: always
+    environment:
+      - REDIS_HOSTS=local:cache:6379:0
+      - REDIS_PASSWORD=redis_secure_password_2024
+      - REDIS_AUTO_CONNECT=true
+      - REDIS_COMMANDER_HTTP_AUTH_ENABLED=false
+      - REDIS_COMMANDER_HTTP_AUTH_USER=admin
+      - REDIS_COMMANDER_HTTP_AUTH_PASSWORD=redis_commander_2024
+      - REDIS_COMMANDER_SERVER_PORT=8081
+      - REDIS_COMMANDER_SERVER_HOST=0.0.0.0
+      - REDIS_COMMANDER_SERVER_SSL_ENABLED=false
+      - REDIS_COMMANDER_SERVER_SSL_KEY=/ssl/key.pem
+      - REDIS_COMMANDER_SERVER_SSL_CERT=/ssl/cert.pem
+      - REDIS_COMMANDER_SERVER_SSL_CA=/ssl/ca.pem
+      - REDIS_COMMANDER_SERVER_SSL_VERIFY=false
+      - REDIS_COMMANDER_SERVER_SSL_KEY_PASSWORD=
+      - REDIS_COMMANDER_SERVER_SSL_CIPHERS=TLSv1.2:TLSv1.3
+      - REDIS_COMMANDER_SERVER_SSL_PROTOCOLS=TLSv1.2:TLSv1.3
+      - REDIS_COMMANDER_SERVER_SSL_SESSION_TIMEOUT=300
+      - REDIS_COMMANDER_SERVER_SSL_SESSION_CACHE_SIZE=1000
+      - REDIS_COMMANDER_SERVER_SSL_SESSION_CACHE_TIMEOUT=300
+      - REDIS_COMMANDER_SERVER_SSL_HONOR_CIPHER_ORDER=true
+      - REDIS_COMMANDER_SERVER_SSL_PREFER_SERVER_CIPHERS=true
+      - REDIS_COMMANDER_LOG_LEVEL=info
+      - REDIS_COMMANDER_LOG_FILE=/logs/redis-commander.log
+      - REDIS_COMMANDER_LOG_MAX_SIZE=100M
+      - REDIS_COMMANDER_LOG_MAX_BACKUPS=10
+      - REDIS_COMMANDER_LOG_MAX_AGE=30
+      - REDIS_COMMANDER_LOG_COMPRESS=true
+      - REDIS_COMMANDER_METRICS_ENABLED=true
+      - REDIS_COMMANDER_METRICS_INTERVAL=10s
+      - REDIS_COMMANDER_METRICS_PATH=/metrics
+      - REDIS_COMMANDER_METRICS_AUTH_ENABLED=false
+      - REDIS_COMMANDER_METRICS_AUTH_USER=admin
+      - REDIS_COMMANDER_METRICS_AUTH_PASSWORD=redis_commander_metrics_2024
+      - REDIS_COMMANDER_HEALTHCHECK_ENABLED=true
+      - REDIS_COMMANDER_HEALTHCHECK_PATH=/health
+      - REDIS_COMMANDER_HEALTHCHECK_INTERVAL=30s
+      - REDIS_COMMANDER_HEALTHCHECK_TIMEOUT=5s
+      - REDIS_COMMANDER_HEALTHCHECK_RETRIES=3
+      - REDIS_COMMANDER_HEALTHCHECK_START_PERIOD=30s
+      - REDIS_COMMANDER_CACHE_ENABLED=true
+      - REDIS_COMMANDER_CACHE_TTL=60
+      - REDIS_COMMANDER_CACHE_SIZE=1000
+      - REDIS_COMMANDER_CACHE_STORE=memory
+      - REDIS_COMMANDER_RATE_LIMIT_ENABLED=true
+      - REDIS_COMMANDER_RATE_LIMIT_WINDOW=60s
+      - REDIS_COMMANDER_RATE_LIMIT_MAX=100
+      - REDIS_COMMANDER_RATE_LIMIT_STORE=memory
+      - REDIS_COMMANDER_RATE_LIMIT_KEY_PREFIX=rl:
+      - REDIS_COMMANDER_RATE_LIMIT_WHITELIST=127.0.0.1,::1
+      - REDIS_COMMANDER_RATE_LIMIT_BLACKLIST=
+    ports:
+      - "8081:8081"
+    networks:
+      - pterodactyl_network
+      - monitoring_network
+    depends_on:
+      - cache
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    logging:
+      <<: *logging-environment
+
+# =============================================================================
+# NETWORKS
+# =============================================================================
+networks:
+  pterodactyl_network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1
+          ip_range: 172.20.0.0/24
+          aux_addresses:
+            host1: 172.20.0.10
+            host2: 172.20.0.11
+            host3: 172.20.0.12
+            host4: 172.20.0.13
+            host5: 172.20.0.14
+            host6: 172.20.0.15
+            host7: 172.20.0.16
+            host8: 172.20.0.17
+            host9: 172.20.0.18
+            host10: 172.20.0.19
+            host11: 172.20.0.20
+            host12: 172.20.0.21
+            host13: 172.20.0.22
+            host14: 172.20.0.23
+            host15: 172.20.0.24
+            host16: 172.20.0.25
+            host17: 172.20.0.26
+            host18: 172.20.0.27
+            host19: 172.20.0.28
+            host20: 172.20.0.29
+    enable_ipv6: true
+    ipam:
+      driver: default
+      config:
+        - subnet: 2001:db8:1::/64
+          gateway: 2001:db8:1::1
+          ip_range: 2001:db8:1::/80
+    internal: false
+    attachable: true
+    labels:
+      - "maintained_by=pterodactyl"
+      - "environment=production"
+      - "project=pterodactyl"
+      - "version=1.0.0"
+      - "created_by=docker-compose"
+      - "team=infrastructure"
+      - "cost_center=it"
+      - "critical=true"
+      - "backup_enabled=true"
+      - "monitoring_enabled=true"
+      - "logging_enabled=true"
+      - "security_scan_enabled=true"
+      
+  monitoring_network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.21.0.0/16
+          gateway: 172.21.0.1
+          ip_range: 172.21.0.0/24
+    enable_ipv6: true
+    ipam:
+      driver: default
+      config:
+        - subnet: 2001:db8:2::/64
+          gateway: 2001:db8:2::1
+          ip_range: 2001:db8:2::/80
+    internal: false
+    attachable: true
+    labels:
+      - "maintained_by=pterodactyl"
+      - "environment=production"
+      - "network_type=monitoring"
+      - "monitoring_enabled=true"
+      - "logging_enabled=true"
+      
+  logging_network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.22.0.0/16
+          gateway: 172.22.0.1
+          ip_range: 172.22.0.0/24
+    enable_ipv6: true
+    ipam:
+      driver: default
+      config:
+        - subnet: 2001:db8:3::/64
+          gateway: 2001:db8:3::1
+          ip_range: 2001:db8:3::/80
+    internal: false
+    attachable: true
+    labels:
+      - "maintained_by=pterodactyl"
+      - "environment=production"
+      - "network_type=logging"
+      - "logging_enabled=true"
+      - "elasticsearch_enabled=true"
+      - "logstash_enabled=true"
+      - "kibana_enabled=true"
+
+# =============================================================================
+# VOLUMES
+# =============================================================================
+volumes:
+  database_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /srv/pterodactyl/database
+      o: bind
+    labels:
+      - "maintained_by=pterodactyl"
+      - "environment=production"
+      - "volume_type=database"
+      - "backup_enabled=true"
+      - "compression=gzip"
+      - "encryption=true"
+      - "retention=30d"
+      - "monitoring_enabled=true"
+      
+  cache_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /srv/pterodactyl/redis
+      o: bind
+    labels:
+      - "maintained_by=pterodactyl"
+      - "environment=production"
+      - "volume_type=cache"
+      - "backup_enabled=true"
+      - "compression=gzip"
+      - "encryption=true"
+      - "retention=7d"
+      - "monitoring_enabled=true"
+      
+  panel_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /srv/pterodactyl/var
+      o: bind
+    labels:
+      - "maintained_by=pterodactyl"
+      - "environment=production"
+      - "volume_type=panel"
+      - "backup_enabled=true"
+      - "compression=gzip"
+      - "encryption=true"
+      - "retention=30d"
+      - "monitoring_enabled=true"
+      
+  wings_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /srv/pterodactyl/volumes
+      o: bind
+    labels:
+      - "maintained_by=pterodactyl"
+      - "environment=production"
+      - "volume_type=wings"
+      - "backup_enabled=true"
+      - "compression=gzip"
+      - "encryption=true"
+      - "retention=30d"
+      - "monitoring_enabled=true"
+      
+  monitoring_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /srv/pterodactyl/monitoring
+      o: bind
+    labels:
+      - "maintained_by=pterodactyl"
+      - "environment=production"
+      - "volume_type=monitoring"
+      - "backup_enabled=true"
+      - "compression=gzip"
+      - "encryption=true"
+      - "retention=30d"
+      - "monitoring_enabled=true"
+      
+  logging_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /srv/pterodactyl/logging
+      o: bind
+    labels:
+      - "maintained_by=pterodactyl"
+      - "environment=production"
+      - "volume_type=logging"
+      - "backup_enabled=true"
+      - "compression=gzip"
+      - "encryption=true"
+      - "retention=30d"
+      - "monitoring_enabled=true"
+      
+  certs_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /srv/pterodactyl/certs
+      o: bind
+    labels:
+      - "maintained_by=pterodactyl"
+      - "environment=production"
+      - "volume_type=certs"
+      - "backup_enabled=true"
+      - "compression=gzip"
+      - "encryption=true"
+      - "retention=365d"
+      - "monitoring_enabled=true"
+      
+  nginx_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /srv/pterodactyl/nginx
+      o: bind
+    labels:
+      - "maintained_by=pterodactyl"
+      - "environment=production"
+      - "volume_type=nginx"
+      - "backup_enabled=true"
+      - "compression=gzip"
+      - "encryption=true"
+      - "retention=30d"
+      - "monitoring_enabled=true"
+      
+  portainer_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /srv/pterodactyl/portainer
+      o: bind
+    labels:
+      - "maintained_by=pterodactyl"
+      - "environment=production"
+      - "volume_type=portainer"
+      - "backup_enabled=true"
+      - "compression=gzip"
+      - "encryption=true"
+      - "retention=30d"
+      - "monitoring_enabled=true"
+      
+  backups_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /srv/pterodactyl/backups
+      o: bind
+    labels:
+      - "maintained_by=pterodactyl"
+      - "environment=production"
+      - "volume_type=backups"
+      - "backup_enabled=true"
+      - "compression=gzip"
+      - "encryption=true"
+      - "retention=30d"
+      - "monitoring_enabled=true"
