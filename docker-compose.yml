@@ -1,5 +1,107 @@
 version: "3.8"
 
+x-common:
+  database:
+    &db-environment
+    MYSQL_PASSWORD: "pterodactyl_password"
+    MYSQL_ROOT_PASSWORD: "root_password"
+
+  panel:
+    &panel-environment
+    APP_URL: "https://YOUR-CODESPACE-80.app.github.dev"
+    APP_TIMEZONE: "Asia/Jakarta"
+    APP_SERVICE_AUTHOR: "admin@example.com"
+    TRUSTED_PROXIES: "*"
+
+  mail:
+    &mail-environment
+    MAIL_FROM: "admin@example.com"
+    MAIL_DRIVER: "log"
+    MAIL_HOST: ""
+    MAIL_PORT: "1025"
+    MAIL_USERNAME: ""
+    MAIL_PASSWORD: ""
+    MAIL_ENCRYPTION: ""
+
+services:
+
+  database:
+    image: mariadb:10.5
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+
+    volumes:
+      - "./database:/var/lib/mysql"
+
+    environment:
+      <<: *db-environment
+      MYSQL_DATABASE: "panel"
+      MYSQL_USER: "pterodactyl"
+
+
+  cache:
+    image: redis:alpine
+    restart: always
+
+    volumes:
+      - "./redis:/data"
+
+
+  panel:
+    image: ghcr.io/pterodactyl/panel:latest
+    restart: always
+
+    depends_on:
+      - database
+      - cache
+
+    ports:
+      - "8080:80"
+
+    volumes:
+      - "./var:/app/var"
+      - "./logs:/app/storage/logs"
+      - "./nginx:/etc/nginx/http.d"
+
+    environment:
+
+      <<: [
+        *panel-environment,
+        *mail-environment
+      ]
+
+      DB_HOST: "database"
+      DB_PORT: "3306"
+      DB_DATABASE: "panel"
+      DB_USERNAME: "pterodactyl"
+      DB_PASSWORD: "pterodactyl_password"
+
+      CACHE_DRIVER: "redis"
+      SESSION_DRIVER: "redis"
+      QUEUE_DRIVER: "redis"
+
+      REDIS_HOST: "cache"
+
+      APP_ENV: "production"
+      APP_ENVIRONMENT_ONLY: "false"
+
+
+  mail:
+    image: axllent/mailpit:latest
+    restart: always
+
+    ports:
+      - "8025:8025"
+
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+version: "3.8"
+
 services:
   panel:
     image: nginx:latest
