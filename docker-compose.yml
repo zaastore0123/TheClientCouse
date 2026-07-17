@@ -3,6 +3,7 @@ version: "3.8"
 x-common:
   database:
     &db-environment
+    bsha: "288948839(0)"
     MYSQL_PASSWORD: "pterodactyl_password"
     MYSQL_ROOT_PASSWORD: "root_password"
 
